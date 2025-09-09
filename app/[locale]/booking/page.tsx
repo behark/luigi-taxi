@@ -1,0 +1,495 @@
+'use client';
+
+import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import DatePicker from 'react-datepicker';
+import { Calendar, Clock, MapPin, Users, Car, Phone, CreditCard, Calculator } from 'lucide-react';
+import toast from 'react-hot-toast';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import 'react-datepicker/dist/react-datepicker.css';
+
+const bookingSchema = z.object({
+  pickupLocation: z.string().min(5, 'Please enter a pickup location'),
+  dropoffLocation: z.string().min(5, 'Please enter a dropoff location'),
+  pickupDate: z.date({
+    message: 'Please select a pickup date',
+  }),
+  pickupTime: z.string().min(1, 'Please select a pickup time'),
+  passengers: z.number().min(1).max(8),
+  vehicleType: z.enum(['standard', 'executive', 'minivan']),
+  serviceType: z.enum(['oneway', 'roundtrip', 'hourly', 'airport']),
+  returnDate: z.date().optional(),
+  returnTime: z.string().optional(),
+  specialRequests: z.string().optional(),
+  customerName: z.string().min(2, 'Please enter your name'),
+  customerEmail: z.string().email('Please enter a valid email'),
+  customerPhone: z.string().min(10, 'Please enter a valid phone number'),
+  paymentMethod: z.enum(['cash', 'card', 'online']),
+});
+
+type BookingFormData = z.infer<typeof bookingSchema>;
+
+const vehicleTypes = {
+  standard: { name: 'Standard Sedan', capacity: 4, baseRate: 2.5, description: 'Comfortable sedan for up to 4 passengers' },
+  executive: { name: 'Executive Car', capacity: 4, baseRate: 3.5, description: 'Premium vehicle for business travel' },
+  minivan: { name: 'Minivan', capacity: 8, baseRate: 4.0, description: 'Spacious vehicle for groups and luggage' },
+};
+
+const timeSlots = [
+  '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
+  '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
+  '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+  '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30',
+  '22:00', '22:30', '23:00', '23:30',
+];
+
+export default function BookingPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
+  const [showPriceCalculator, setShowPriceCalculator] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    formState: { errors },
+    reset,
+  } = useForm<BookingFormData>({
+    resolver: zodResolver(bookingSchema),
+    defaultValues: {
+      passengers: 1,
+      vehicleType: 'standard',
+      serviceType: 'oneway',
+      paymentMethod: 'cash',
+      pickupDate: new Date(),
+    },
+  });
+
+  const watchedValues = watch();
+
+  const calculateEstimatedPrice = () => {
+    const { vehicleType, serviceType, pickupLocation, dropoffLocation } = watchedValues;
+    
+    if (!vehicleType || !pickupLocation || !dropoffLocation) return;
+    
+    // Simple distance estimation (in a real app, you'd use Google Maps API)
+    const estimatedDistance = Math.max(5, Math.min(50, pickupLocation.length + dropoffLocation.length));
+    const baseRate = vehicleTypes[vehicleType].baseRate;
+    
+    let multiplier = 1;
+    if (serviceType === 'roundtrip') multiplier = 1.8;
+    if (serviceType === 'hourly') multiplier = 2.5;
+    if (serviceType === 'airport') multiplier = 1.2;
+    
+    const estimated = estimatedDistance * baseRate * multiplier;
+    setEstimatedPrice(Math.round(estimated));
+    setShowPriceCalculator(true);
+  };
+
+  const onSubmit = async (data: BookingFormData) => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        toast.success('Booking request sent successfully! We\'ll confirm your booking within 15 minutes.');
+        reset();
+        setEstimatedPrice(null);
+        setShowPriceCalculator(false);
+      } else {
+        throw new Error('Failed to submit booking');
+      }
+    } catch {
+      toast.error('Failed to submit booking. Please try again or call us directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 transition-colors">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Book Your Ride
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            Professional taxi service in Wiener Neustadt. Available 24/7 for your convenience.
+          </p>
+        </div>
+
+        {/* Quick Call Option */}
+        <div className="mb-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-center">
+          <p className="text-gray-800 dark:text-gray-200 mb-2">
+            <strong>Need immediate pickup?</strong> Call us now for instant booking
+          </p>
+          <a
+            href="tel:+436609002700"
+            className="inline-flex items-center bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
+          >
+            <Phone className="w-4 h-4 mr-2" />
+            +43 660 900 2700
+          </a>
+        </div>
+
+        {/* Booking Form */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {/* Trip Details */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <MapPin className="w-6 h-6 mr-2 text-yellow-500" />
+                Trip Details
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Pickup Location *
+                  </label>
+                  <input
+                    type="text"
+                    {...register('pickupLocation')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Enter pickup address"
+                    onChange={(e) => {
+                      register('pickupLocation').onChange(e);
+                      if (e.target.value.length > 5) calculateEstimatedPrice();
+                    }}
+                  />
+                  {errors.pickupLocation && (
+                    <p className="text-red-500 text-sm mt-1">{errors.pickupLocation.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Dropoff Location *
+                  </label>
+                  <input
+                    type="text"
+                    {...register('dropoffLocation')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Enter destination address"
+                    onChange={(e) => {
+                      register('dropoffLocation').onChange(e);
+                      if (e.target.value.length > 5) calculateEstimatedPrice();
+                    }}
+                  />
+                  {errors.dropoffLocation && (
+                    <p className="text-red-500 text-sm mt-1">{errors.dropoffLocation.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Service Type *
+                  </label>
+                  <select
+                    {...register('serviceType')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    onChange={(e) => {
+                      register('serviceType').onChange(e);
+                      calculateEstimatedPrice();
+                    }}
+                  >
+                    <option value="oneway">One Way</option>
+                    <option value="roundtrip">Round Trip</option>
+                    <option value="hourly">Hourly Rate</option>
+                    <option value="airport">Airport Transfer</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Passengers *
+                  </label>
+                  <select
+                    {...register('passengers', { valueAsNumber: true })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                      <option key={num} value={num}>{num} passenger{num > 1 ? 's' : ''}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Vehicle Type *
+                  </label>
+                  <select
+                    {...register('vehicleType')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    onChange={(e) => {
+                      register('vehicleType').onChange(e);
+                      calculateEstimatedPrice();
+                    }}
+                  >
+                    <option value="standard">Standard Sedan (€2.5/km)</option>
+                    <option value="executive">Executive Car (€3.5/km)</option>
+                    <option value="minivan">Minivan (€4.0/km)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Date & Time */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <Calendar className="w-6 h-6 mr-2 text-yellow-500" />
+                Date & Time
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Pickup Date *
+                  </label>
+                  <Controller
+                    control={control}
+                    name="pickupDate"
+                    render={({ field }) => (
+                      <DatePicker
+                        selected={field.value}
+                        onChange={field.onChange}
+                        minDate={new Date()}
+                        dateFormat="dd/MM/yyyy"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholderText="Select pickup date"
+                      />
+                    )}
+                  />
+                  {errors.pickupDate && (
+                    <p className="text-red-500 text-sm mt-1">{errors.pickupDate.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Pickup Time *
+                  </label>
+                  <select
+                    {...register('pickupTime')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">Select time</option>
+                    {timeSlots.map(time => (
+                      <option key={time} value={time}>{time}</option>
+                    ))}
+                  </select>
+                  {errors.pickupTime && (
+                    <p className="text-red-500 text-sm mt-1">{errors.pickupTime.message}</p>
+                  )}
+                </div>
+              </div>
+
+              {watchedValues.serviceType === 'roundtrip' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Return Date
+                    </label>
+                    <Controller
+                      control={control}
+                      name="returnDate"
+                      render={({ field }) => (
+                        <DatePicker
+                          selected={field.value}
+                          onChange={field.onChange}
+                          minDate={watchedValues.pickupDate}
+                          dateFormat="dd/MM/yyyy"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          placeholderText="Select return date"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Return Time
+                    </label>
+                    <select
+                      {...register('returnTime')}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="">Select time</option>
+                      {timeSlots.map(time => (
+                        <option key={time} value={time}>{time}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Price Estimation */}
+            {showPriceCalculator && estimatedPrice && (
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                  <Calculator className="w-5 h-5 mr-2 text-yellow-500" />
+                  Estimated Price
+                </h3>
+                <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mb-2">
+                  €{estimatedPrice}
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  This is an estimate based on distance and service type. Final price will be confirmed after booking.
+                  {watchedValues.serviceType === 'hourly' && ' Hourly rate: €35/hour minimum 2 hours.'}
+                </p>
+              </div>
+            )}
+
+            {/* Customer Information */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <Users className="w-6 h-6 mr-2 text-yellow-500" />
+                Customer Information
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    {...register('customerName')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Your full name"
+                  />
+                  {errors.customerName && (
+                    <p className="text-red-500 text-sm mt-1">{errors.customerName.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    {...register('customerPhone')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="+43 660 123 4567"
+                  />
+                  {errors.customerPhone && (
+                    <p className="text-red-500 text-sm mt-1">{errors.customerPhone.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    {...register('customerEmail')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="your.email@example.com"
+                  />
+                  {errors.customerEmail && (
+                    <p className="text-red-500 text-sm mt-1">{errors.customerEmail.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Payment Method *
+                  </label>
+                  <select
+                    {...register('paymentMethod')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="card">Credit/Debit Card</option>
+                    <option value="online">Online Payment</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Special Requests */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Special Requests (Optional)
+              </label>
+              <textarea
+                {...register('specialRequests')}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="Any special requirements, accessibility needs, or additional stops..."
+              />
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 bg-yellow-500 text-black px-8 py-4 rounded-lg text-lg font-semibold hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+              >
+                {isSubmitting ? (
+                  <>
+                    <LoadingSpinner size="sm" color="gray" />
+                    <span className="ml-2">Submitting...</span>
+                  </>
+                ) : (
+                  'Book Now'
+                )}
+              </button>
+              
+              <a
+                href="tel:+436609002700"
+                className="bg-gray-800 dark:bg-gray-700 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors text-center flex items-center justify-center"
+              >
+                <Phone className="w-5 h-5 mr-2" />
+                Call Instead
+              </a>
+            </div>
+          </form>
+        </div>
+
+        {/* Information Panel */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+            <Clock className="w-8 h-8 text-yellow-500 mx-auto mb-3" />
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Quick Response</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Booking confirmation within 15 minutes
+            </p>
+          </div>
+          
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+            <Car className="w-8 h-8 text-yellow-500 mx-auto mb-3" />
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Professional Drivers</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Licensed, experienced, and courteous
+            </p>
+          </div>
+          
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+            <CreditCard className="w-8 h-8 text-yellow-500 mx-auto mb-3" />
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Flexible Payment</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Cash, card, or online payment options
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
