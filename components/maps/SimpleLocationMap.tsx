@@ -11,8 +11,8 @@ export default function SimpleLocationMap({ className = '' }: SimpleLocationMapP
   const t = useTranslations();
 
   const handleDirectionsClick = () => {
-    // Using your actual Google Maps business URL
-    window.open('https://maps.app.goo.gl/gzyL2AG2NeWYRTjqQ', '_blank');
+    // Using proper Google Maps URL format
+    window.open('https://maps.google.com/maps?q=Wr.+Str.+60,+2700+Wiener+Neustadt,+Austria', '_blank');
   };
 
   const handleCallClick = () => {
