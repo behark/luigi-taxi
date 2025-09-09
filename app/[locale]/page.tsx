@@ -10,6 +10,7 @@ import { IMAGES } from '@/lib/constants/images';
 import SimpleLocationMap from '@/components/maps/SimpleLocationMap';
 import WhatsAppButton from '@/components/ui/WhatsAppButton';
 import PricingCalculator from '@/components/forms/PricingCalculator';
+import TestimonialsSection from '@/components/sections/TestimonialsSection';
 
 export default function Home() {
   const t = useTranslations('homepage');
@@ -85,7 +86,7 @@ export default function Home() {
                   href={`/fleet#${vehicle.id}`}
                   className="text-yellow-500 font-semibold hover:text-yellow-600 transition-colors"
                 >
-                  Learn More
+                  {t('learnMore')}
                 </Link>
               </CardContent>
             </Card>
@@ -137,13 +138,16 @@ export default function Home() {
                   href={`/services#${service.id}`}
                   className="text-yellow-500 font-semibold hover:text-yellow-600 transition-colors"
                 >
-                  Learn More
+                  {t('learnMore')}
                 </Link>
               </CardContent>
             </Card>
           ))}
         </div>
       </Section>
+
+      {/* Testimonials Section */}
+      <TestimonialsSection />
 
       {/* Location & Pricing Section */}
       <Section variant="gray">

@@ -29,6 +29,7 @@
       "subtitle": "Ihr zuverlässiger Taxidienst in Wiener Neustadt, 24/7 verfügbar",
       "bookButton": "Jetzt Buchen"
     },
+    "learnMore": "Mehr Erfahren",
     "features": {
       "available247": {
         "title": "24/7 Service",
@@ -228,5 +229,17 @@
     "subtitle": "Unser Standort in Wiener Neustadt",
     "address": "Wr. Str. 60, 2700 Wiener Neustadt, Österreich",
     "getDirections": "Route planen"
+  },
+  "testimonials": {
+    "title": "Was unsere Kunden sagen",
+    "subtitle": "Lesen Sie Bewertungen von zufriedenen Kunden, die Luigi Taxi für ihre Transportbedürfnisse gewählt haben.",
+    "cta": {
+      "title": "Bereit für Ihre Fahrt?",
+      "subtitle": "Werden Sie unser nächster zufriedener Kunde!"
+    }
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "subtitle": "Antworten auf die häufigsten Fragen zu unserem Taxiservice"
   }
 }

@@ -23,10 +23,10 @@
     Referrer-Policy = "origin-when-cross-origin"
     X-XSS-Protection = "1; mode=block"
 
-# Redirect rules for i18n
+# Redirect rules for i18n - Default to German for Austrian business
 [[redirects]]
   from = "/"
-  to = "/en"
+  to = "/de"
   status = 302
   force = false
 

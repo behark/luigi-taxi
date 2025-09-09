@@ -1,0 +1,12 @@
+{
+  "/[locale]/booking/page": "app/[locale]/booking/page.js",
+  "/[locale]/contact/page": "app/[locale]/contact/page.js",
+  "/[locale]/fleet/page": "app/[locale]/fleet/page.js",
+  "/[locale]/page": "app/[locale]/page.js",
+  "/[locale]/services/page": "app/[locale]/services/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/booking/route": "app/api/booking/route.js",
+  "/api/contact/route": "app/api/contact/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js"
+}

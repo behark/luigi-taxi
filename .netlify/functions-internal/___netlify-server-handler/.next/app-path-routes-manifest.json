@@ -1,0 +1,12 @@
+{
+  "/[locale]/booking/page": "/[locale]/booking",
+  "/[locale]/contact/page": "/[locale]/contact",
+  "/[locale]/fleet/page": "/[locale]/fleet",
+  "/[locale]/page": "/[locale]",
+  "/[locale]/services/page": "/[locale]/services",
+  "/_not-found/page": "/_not-found",
+  "/api/booking/route": "/api/booking",
+  "/api/contact/route": "/api/contact",
+  "/favicon.ico/route": "/favicon.ico",
+  "/sitemap.xml/route": "/sitemap.xml"
+}

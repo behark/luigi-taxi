@@ -29,6 +29,7 @@
       "subtitle": "Your reliable taxi service in Wiener Neustadt, available 24/7",
       "bookButton": "Book Now"
     },
+    "learnMore": "Learn More",
     "fleet": {
       "title": "Our Fleet",
       "subtitle": "Choose from our modern, well-maintained vehicles for comfortable and reliable transportation",
@@ -238,5 +239,17 @@
     "subtitle": "Our location in Wiener Neustadt",
     "address": "Wr. Str. 60, 2700 Wiener Neustadt, Austria",
     "getDirections": "Get Directions"
+  },
+  "testimonials": {
+    "title": "What Our Customers Say",
+    "subtitle": "Read reviews from satisfied customers who chose Luigi Taxi for their transportation needs.",
+    "cta": {
+      "title": "Ready for Your Ride?",
+      "subtitle": "Become our next satisfied customer!"
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Answers to common questions about our taxi service"
   }
 }
