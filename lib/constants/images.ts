@@ -1,0 +1,61 @@
+// Image constants with fallbacks for taxi-related images
+export const IMAGES = {
+  // Hero section
+  hero: {
+    src: '/images/taxi-hero.jpg',
+    alt: 'Luigi Taxi - Professional taxi service in Wiener Neustadt',
+    fallback: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1920&h=1080&fit=crop&crop=center&q=80',
+  },
+
+  // Fleet vehicles
+  fleet: {
+    sedan: {
+      src: '/images/sedan.jpg', 
+      alt: 'Mercedes sedan - comfortable taxi for up to 4 passengers',
+      fallback: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&q=80',
+    },
+    executive: {
+      src: '/images/executive.jpg',
+      alt: 'Executive luxury vehicle for business travel',
+      fallback: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&h=600&fit=crop&crop=center&q=80',
+    },
+    minivan: {
+      src: '/images/minivan.jpg',
+      alt: 'Spacious minivan for groups and luggage',
+      fallback: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&h=600&fit=crop&crop=center&q=80',
+    },
+  },
+
+  // Services
+  services: {
+    cityTour: {
+      src: '/images/city-tour.jpg',
+      alt: 'City tour service - Explore Wiener Neustadt',
+      fallback: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&crop=center&q=80',
+    },
+    airportTransfer: {
+      src: '/images/airport-transfer.jpg', 
+      alt: 'Airport transfer service - Reliable transportation to airports',
+      fallback: 'https://images.unsplash.com/photo-1556075798-4825dfaaf498?w=800&h=600&fit=crop&crop=center&q=80',
+    },
+    businessTravel: {
+      src: '/images/business-travel.jpg',
+      alt: 'Business travel service - Professional transportation',
+      fallback: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop&crop=center&q=80',
+    },
+  },
+
+  // About/Company
+  company: {
+    wienerNeustadt: {
+      src: '/images/wiener-neustadt.jpg',
+      alt: 'Wiener Neustadt - Our service area',
+      fallback: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=800&h=600&fit=crop&crop=center&q=80',
+    },
+    driver: {
+      src: '/images/professional-driver.jpg',
+      alt: 'Professional taxi driver - Experienced and courteous',
+      fallback: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop&crop=center&q=80',
+    },
+  },
+};
