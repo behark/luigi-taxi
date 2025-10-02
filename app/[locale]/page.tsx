@@ -18,18 +18,15 @@ export default function Home() {
   const features = [
     {
       icon: '⏰',
-      title: 'features.available.title',
-      description: 'features.available.description'
+      key: 'available247'
     },
     {
       icon: '🌟',
-      title: 'features.professional.title', 
-      description: 'features.professional.description'
+      key: 'professionalDrivers'
     },
     {
       icon: '💰',
-      title: 'features.pricing.title',
-      description: 'features.pricing.description'
+      key: 'fairPricing'
     }
   ];
 
@@ -48,9 +45,12 @@ export default function Home() {
           />
         </div>
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold mb-3">
             {t('hero.title')}
           </h1>
+          <p className="text-2xl md:text-3xl text-yellow-400 font-semibold mb-4">
+            {t('hero.tagline')}
+          </p>
           <p className="text-xl md:text-2xl mb-8">
             {t('hero.subtitle')}
           </p>
@@ -59,6 +59,35 @@ export default function Home() {
           </Button>
         </div>
       </section>
+
+      {/* Service Highlights Section */}
+      <Section variant="gray">
+        <SectionHeader
+          title={t('serviceHighlights.title')}
+          subtitle={t('serviceHighlights.subtitle')}
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+          {[
+            { icon: '📅', key: 'preBooking' },
+            { icon: '✈️', key: 'stationAirport' },
+            { icon: '💳', key: 'cardPayment' },
+            { icon: '🚗', key: 'cityLongShopping' },
+            { icon: '👥', key: 'sevenSeater' },
+            { icon: '💼', key: 'businessPrivate' },
+            { icon: '💰', key: 'flatRate' },
+          ].map((service) => (
+            <div
+              key={service.key}
+              className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow flex items-center space-x-3"
+            >
+              <span className="text-2xl">{service.icon}</span>
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                {t(`serviceHighlights.${service.key}`)}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Section>
 
       {/* Fleet Section */}
       <Section>
@@ -105,9 +134,9 @@ export default function Home() {
             <Card key={index} className="text-center">
               <CardContent>
                 <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-3">{t(feature.title)}</h3>
+                <h3 className="text-xl font-semibold mb-3">{t(`features.${feature.key}.title`)}</h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  {t(feature.description)}
+                  {t(`features.${feature.key}.description`)}
                 </p>
               </CardContent>
             </Card>

@@ -26,18 +26,32 @@
   "homepage": {
     "hero": {
       "title": "Willkommen bei Luigi Taxi",
+      "tagline": "Mehr als nur ein TAXI",
       "subtitle": "Ihr zuverlässiger Taxidienst in Wiener Neustadt, 24/7 verfügbar",
       "bookButton": "Jetzt Buchen"
     },
+    "serviceHighlights": {
+      "title": "Unsere umfassenden Leistungen",
+      "subtitle": "Mehr als nur ein TAXI - Ihr Partner für alle Transportbedürfnisse",
+      "preBooking": "Vorbestellung möglich",
+      "stationAirport": "HBF- und Flughafentransfer",
+      "cardPayment": "EC-/Kreditkartenzahlung",
+      "cityLongShopping": "Stadt-, Fern- und Einkaufsfahrten",
+      "sevenSeater": "7-Sitzer verfügbar",
+      "businessPrivate": "Geschäfts- und Privatfahrten",
+      "flatRate": "Pauschalpreise möglich"
+    },
     "learnMore": "Mehr Erfahren",
     "features": {
+      "title": "Warum Luigi Taxi wählen?",
+      "subtitle": "Erleben Sie den Unterschied mit unserem professionellen Taxiservice",
       "available247": {
         "title": "24/7 Service",
-        "description": "Rund um die Uhr für Ihre Bequemlichkeit verfügbar"
+        "description": "Rund um die Uhr für Sie verfügbar"
       },
       "professionalDrivers": {
         "title": "Professionelle Fahrer",
-        "description": "Erfahrene, höfliche und lizenzierte Fahrer"
+        "description": "Erfahrene, höfliche und konzessionierte Fahrer"
       },
       "fairPricing": {
         "title": "Faire Preise",
@@ -46,13 +60,14 @@
     },
     "fleet": {
       "title": "Unsere Flotte",
+      "subtitle": "Wählen Sie aus unseren modernen, gut gewarteten Fahrzeugen für komfortablen und zuverlässigen Transport",
       "sedan": {
         "title": "Standard Limousine",
         "description": "Komfortabler und zuverlässiger Transport für bis zu 4 Personen"
       },
       "executive": {
         "title": "Executive Service",
-        "description": "Premium-Fahrzeuge für Geschäfts- und Luxusreisen"
+        "description": "Premium-Fahrzeuge für Geschäftsreisen und besondere Anlässe"
       },
       "minivan": {
         "title": "Kleinbus",
@@ -61,6 +76,8 @@
     },
     "learnMore": "Mehr Erfahren",
     "services": {
+      "title": "Unsere Dienstleistungen",
+      "subtitle": "Professionelle Transportlösungen für jeden Bedarf",
       "cityTours": {
         "title": "Stadtrundfahrten",
         "description": "Entdecken Sie Wiener Neustadt mit unseren erfahrenen Fahrern"
@@ -73,11 +90,16 @@
         "title": "Geschäftsreisen",
         "description": "Professioneller Service für Geschäftskunden"
       }
+    },
+    "cta": {
+      "title": "Bereit für Ihre Fahrt?",
+      "subtitle": "24/7 verfügbar für alle Ihre Transportbedürfnisse",
+      "contactButton": "Kontakt aufnehmen"
     }
   },
   "contact": {
     "title": "Luigi Taxi Kontaktieren",
-    "subtitle": "Bereit zu buchen oder haben Sie Fragen? Wir sind 24/7 für Sie da. Kontaktieren Sie uns und erleben Sie professionellen Taxidienst in Wiener Neustadt.",
+    "subtitle": "Haben Sie Fragen oder möchten Sie buchen? Wir sind rund um die Uhr für Sie da. Kontaktieren Sie uns und erleben Sie professionellen Taxidienst in Wiener Neustadt.",
     "getInTouch": "Kontakt aufnehmen",
     "sendMessage": "Nachricht senden",
     "quickActions": "Schnellaktionen",
@@ -90,7 +112,7 @@
       "phone": "Telefon",
       "phoneNote": "24/7 für Buchungen verfügbar",
       "email": "E-Mail",
-      "emailNote": "Wir antworten innerhalb von 2 Stunden",
+      "emailNote": "Antwort innerhalb von 2 Stunden",
       "address": "Adresse",
       "serviceHours": "Servicezeiten",
       "serviceHoursText": "24 Stunden am Tag\n7 Tage die Woche\n365 Tage im Jahr"
@@ -121,7 +143,7 @@
   },
   "booking": {
     "title": "Ihre Fahrt buchen",
-    "subtitle": "Professioneller Taxidienst in Wiener Neustadt. 24/7 für Ihre Bequemlichkeit verfügbar.",
+    "subtitle": "Professioneller Taxidienst in Wiener Neustadt. Rund um die Uhr verfügbar.",
     "immediatePickup": "Sofortige Abholung benötigt?",
     "immediatePickupText": "Rufen Sie uns jetzt für eine sofortige Buchung an",
     "tripDetails": "Fahrtdetails",
@@ -145,8 +167,8 @@
         "airport": "Flughafentransfer"
       },
       "passengers": "Fahrgäste",
-      "passengerCount": "{count} Fahrgast",
-      "passengerCountPlural": "{count} Fahrgäste",
+      "passengerCount": "{count} Person",
+      "passengerCountPlural": "{count} Personen",
       "vehicleType": "Fahrzeugtyp",
       "vehicleTypes": {
         "standard": "Standard Limousine (€2,5/km)",
@@ -241,5 +263,24 @@
   "faq": {
     "title": "Häufig gestellte Fragen",
     "subtitle": "Antworten auf die häufigsten Fragen zu unserem Taxiservice"
+  },
+  "footer": {
+    "quickLinks": "Schnelllinks",
+    "services": "Leistungen",
+    "ourServices": "Unsere Leistungen",
+    "ourFleet": "Unsere Flotte",
+    "bookNow": "Jetzt buchen",
+    "contact": "Kontakt",
+    "airportTransfers": "Flughafentransfer",
+    "businessTravel": "Geschäftsreisen",
+    "cityTours": "Stadtrundfahrten",
+    "specialEvents": "Besondere Anlässe",
+    "followUs": "Folgen Sie uns",
+    "onlineFindUs": "Auf Karte anzeigen",
+    "weAccept": "Wir akzeptieren",
+    "creditDebitCards": "Kredit-/Debitkarten",
+    "onlinePayment": "Online-Zahlung",
+    "copyright": "© 2025 Luigi Taxi e.U. Alle Rechte vorbehalten.",
+    "availableLanguages": "Verfügbare Sprachen"
   }
 }

@@ -26,8 +26,20 @@
   "homepage": {
     "hero": {
       "title": "Welcome to Luigi Taxi",
+      "tagline": "More than just a TAXI",
       "subtitle": "Your reliable taxi service in Wiener Neustadt, available 24/7",
       "bookButton": "Book Now"
+    },
+    "serviceHighlights": {
+      "title": "Our Comprehensive Services",
+      "subtitle": "More than just a taxi - Your partner for all transportation needs",
+      "preBooking": "Advance booking available",
+      "stationAirport": "Main station & airport transfers",
+      "cardPayment": "EC/Credit card payment accepted",
+      "cityLongShopping": "City, long-distance & shopping trips",
+      "sevenSeater": "7-seater vehicles available",
+      "businessPrivate": "Business & private journeys",
+      "flatRate": "Flat rates available"
     },
     "learnMore": "Learn More",
     "fleet": {
@@ -251,5 +263,24 @@
   "faq": {
     "title": "Frequently Asked Questions",
     "subtitle": "Answers to common questions about our taxi service"
+  },
+  "footer": {
+    "quickLinks": "Quick Links",
+    "services": "Services",
+    "ourServices": "Our Services",
+    "ourFleet": "Our Fleet",
+    "bookNow": "Book Now",
+    "contact": "Contact",
+    "airportTransfers": "Airport Transfers",
+    "businessTravel": "Business Travel",
+    "cityTours": "City Tours",
+    "specialEvents": "Special Events",
+    "followUs": "Follow Us",
+    "onlineFindUs": "Find us on Maps",
+    "weAccept": "We Accept",
+    "creditDebitCards": "Credit/Debit Cards",
+    "onlinePayment": "Online Payment",
+    "copyright": "© 2025 Luigi Taxi e.U. All rights reserved.",
+    "availableLanguages": "Available Languages"
   }
 }
