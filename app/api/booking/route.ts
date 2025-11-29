@@ -7,113 +7,11 @@ import {
   getClientIdentifier,
   RATE_LIMITS,
 } from '@/lib/utils/rate-limit';
-
-// Helper functions for formatting
-function getVehicleName(type: string): string {
-  const names: Record<string, string> = {
-    standard: 'Standard Sedan',
-    executive: 'Executive Car',
-    minivan: 'Minivan',
-  };
-  return names[type] || type;
-}
-
-function getServiceTypeName(type: string): string {
-  const names: Record<string, string> = {
-    oneway: 'One Way',
-    roundtrip: 'Round Trip',
-    hourly: 'Hourly Rate',
-    airport: 'Airport Transfer',
-  };
-  return names[type] || type;
-}
-
-function getPaymentMethodName(method: string): string {
-  const names: Record<string, string> = {
-    cash: 'Cash Payment',
-    card: 'Credit/Debit Card',
-    online: 'Online Payment',
-  };
-  return names[method] || method;
-}
-
-// Calculate price based on booking details
-function calculatePrice(booking: {
-  vehicleType: string;
-  serviceType: string;
-  pickupLocation: string;
-  dropoffLocation: string;
-  pickupTime: string;
-}): number {
-  const { pricing } = BUSINESS_INFO;
-  const baseRate =
-    pricing.baseRates[booking.vehicleType as keyof typeof pricing.baseRates] ||
-    pricing.baseRates.standard;
-
-  // Estimate distance based on location complexity
-  // Note: In production, use Google Maps Distance Matrix API for accurate pricing
-  const estimatedDistance = Math.max(
-    5,
-    Math.min(50, Math.floor((booking.pickupLocation.length + booking.dropoffLocation.length) / 2))
-  );
-
-  // Get service multiplier
-  const serviceMultiplier =
-    pricing.serviceMultipliers[
-      booking.serviceType as keyof typeof pricing.serviceMultipliers
-    ] || 1;
-
-  // Calculate night surcharge
-  const hour = parseInt(booking.pickupTime.split(':')[0], 10);
-  const isNightTime =
-    hour >= pricing.nightHoursStart || hour < pricing.nightHoursEnd;
-  const nightMultiplier = isNightTime ? pricing.nightSurchargeMultiplier : 1;
-
-  // Calculate total
-  const estimated = estimatedDistance * baseRate * serviceMultiplier * nightMultiplier;
-  return Math.max(pricing.minimumFare, Math.round(estimated));
-}
-
-// Generate booking confirmation email content (for future email integration)
-function generateEmailContent(
-  bookingData: z.infer<typeof bookingApiSchema>,
-  bookingRef: string,
-  estimatedPrice: number
-): string {
-  const pickupDate =
-    bookingData.pickupDate instanceof Date
-      ? bookingData.pickupDate.toLocaleDateString('de-AT')
-      : new Date(bookingData.pickupDate).toLocaleDateString('de-AT');
-
-  return `
-Booking Confirmation - ${BUSINESS_INFO.name}
-
-Dear ${bookingData.customerName},
-
-Thank you for choosing ${BUSINESS_INFO.name}! Your booking has been received and is being processed.
-
-Booking Details:
-Reference: ${bookingRef}
-Pickup: ${bookingData.pickupLocation}
-Destination: ${bookingData.dropoffLocation}
-Date: ${pickupDate}
-Time: ${bookingData.pickupTime}
-Passengers: ${bookingData.passengers}
-Vehicle: ${getVehicleName(bookingData.vehicleType)}
-Service Type: ${getServiceTypeName(bookingData.serviceType)}
-Payment: ${getPaymentMethodName(bookingData.paymentMethod)}
-${bookingData.specialRequests ? `Special Requests: ${bookingData.specialRequests}` : ''}
-
-Estimated Price: ${BUSINESS_INFO.currencySymbol}${estimatedPrice}
-
-We will contact you within 15 minutes to confirm your booking and provide driver details.
-
-For any questions, please call us at ${BUSINESS_INFO.phone}.
-
-Best regards,
-${BUSINESS_INFO.name} Team
-  `.trim();
-}
+import { calculatePrice } from '@/services/maps';
+import {
+  sendBookingConfirmationEmail,
+  sendBookingNotificationToAdmin,
+} from '@/services/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -143,52 +41,93 @@ export async function POST(request: NextRequest) {
     // Generate booking reference
     const bookingRef = `LT${Date.now().toString().slice(-8)}${Math.random().toString(36).slice(-3).toUpperCase()}`;
 
-    // Calculate estimated price
-    const estimatedPrice = calculatePrice({
-      vehicleType: bookingData.vehicleType,
-      serviceType: bookingData.serviceType,
-      pickupLocation: bookingData.pickupLocation,
-      dropoffLocation: bookingData.dropoffLocation,
-      pickupTime: bookingData.pickupTime,
-    });
+    // Calculate price using Google Maps (or fallback estimation)
+    const priceCalculation = await calculatePrice(
+      bookingData.pickupLocation,
+      bookingData.dropoffLocation,
+      {
+        vehicleType: bookingData.vehicleType,
+        serviceType: bookingData.serviceType,
+        pickupTime: bookingData.pickupTime,
+      }
+    );
 
-    // Prepare booking object for storage
+    // Format pickup date for display
+    const pickupDate =
+      bookingData.pickupDate instanceof Date
+        ? bookingData.pickupDate.toLocaleDateString('de-AT')
+        : new Date(bookingData.pickupDate).toLocaleDateString('de-AT');
+
+    // Prepare booking object
     const booking = {
       ...bookingData,
       bookingReference: bookingRef,
       status: 'pending' as const,
       createdAt: new Date().toISOString(),
-      estimatedPrice,
+      estimatedPrice: priceCalculation.totalPrice,
+      distanceKm: priceCalculation.distanceKm,
     };
 
-    // Generate email content (ready for email service integration)
-    const _emailContent = generateEmailContent(bookingData, bookingRef, estimatedPrice);
+    // Log booking (in production, save to database)
+    console.log('New booking received:', {
+      reference: bookingRef,
+      customer: bookingData.customerName,
+      route: `${bookingData.pickupLocation} → ${bookingData.dropoffLocation}`,
+      distance: `${priceCalculation.distanceKm} km`,
+      date: `${pickupDate} ${bookingData.pickupTime}`,
+      price: `€${priceCalculation.totalPrice}`,
+      nightSurcharge: priceCalculation.priceBreakdown.nightSurcharge,
+    });
 
-    // Production implementation checklist:
-    // 1. Store booking in database (Prisma, Drizzle, etc.)
-    // 2. Send confirmation email (Resend, SendGrid, etc.)
-    // 3. Send SMS notification (Twilio, etc.)
-    // 4. Process payment if online (Stripe)
-    // 5. Notify admin/drivers
+    // Prepare email data
+    const emailData = {
+      bookingReference: bookingRef,
+      customerName: bookingData.customerName,
+      customerEmail: bookingData.customerEmail,
+      customerPhone: bookingData.customerPhone,
+      pickupLocation: bookingData.pickupLocation,
+      dropoffLocation: bookingData.dropoffLocation,
+      pickupDate,
+      pickupTime: bookingData.pickupTime,
+      passengers: bookingData.passengers,
+      vehicleType: bookingData.vehicleType,
+      serviceType: bookingData.serviceType,
+      paymentMethod: bookingData.paymentMethod,
+      estimatedPrice: priceCalculation.totalPrice,
+      specialRequests: bookingData.specialRequests,
+    };
 
-    // Development logging only
-    if (process.env.NODE_ENV === 'development') {
-      console.log('New booking received:', {
-        reference: bookingRef,
-        customer: bookingData.customerName,
-        pickup: bookingData.pickupLocation,
-        destination: bookingData.dropoffLocation,
-        date: booking.createdAt,
-        estimatedPrice,
-      });
-    }
+    // Send emails (non-blocking - don't wait for completion to respond)
+    const emailPromises = [
+      sendBookingConfirmationEmail(emailData).catch((err) => {
+        console.error('Failed to send customer confirmation email:', err);
+        return { success: false, error: err.message };
+      }),
+      sendBookingNotificationToAdmin(emailData).catch((err) => {
+        console.error('Failed to send admin notification email:', err);
+        return { success: false, error: err.message };
+      }),
+    ];
+
+    // Execute emails in background
+    Promise.all(emailPromises).then((results) => {
+      const [customerResult, adminResult] = results;
+      if (customerResult.success) {
+        console.log(`✉️ Customer confirmation sent for ${bookingRef}`);
+      }
+      if (adminResult.success) {
+        console.log(`✉️ Admin notification sent for ${bookingRef}`);
+      }
+    });
 
     return NextResponse.json(
       {
         success: true,
         message: "Booking request received successfully! We'll confirm within 15 minutes.",
         bookingReference: bookingRef,
-        estimatedPrice: booking.estimatedPrice,
+        estimatedPrice: priceCalculation.totalPrice,
+        distance: priceCalculation.priceBreakdown.distance,
+        duration: priceCalculation.priceBreakdown.duration,
       },
       {
         status: 200,
@@ -198,10 +137,7 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    // Development logging only
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Booking submission error:', error);
-    }
+    console.error('Booking submission error:', error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
