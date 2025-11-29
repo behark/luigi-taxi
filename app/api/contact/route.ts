@@ -1,77 +1,119 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { contactSchema } from '@/lib/validations/booking';
+import { BUSINESS_INFO } from '@/lib/constants/business';
+import {
+  checkRateLimit,
+  getClientIdentifier,
+  RATE_LIMITS,
+} from '@/lib/utils/rate-limit';
 
-const contactSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  phone: z.string().min(10),
-  subject: z.string().min(5),
-  message: z.string().min(10),
-});
+// Generate contact notification email content (for future email integration)
+function generateContactEmailContent(data: {
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+}): string {
+  return `
+New contact form submission from ${BUSINESS_INFO.name} website:
+
+Name: ${data.name}
+Email: ${data.email}
+Phone: ${data.phone}
+Subject: ${data.subject}
+
+Message:
+${data.message}
+
+Submitted at: ${new Date().toLocaleString('de-AT', {
+  timeZone: BUSINESS_INFO.timezone
+})}
+  `.trim();
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check
+    const clientId = getClientIdentifier(request);
+    const rateLimitResult = checkRateLimit(clientId, RATE_LIMITS.contact);
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Too many messages sent. Please wait a moment before trying again.',
+          retryAfter: Math.ceil(rateLimitResult.resetIn / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000)),
+          },
+        }
+      );
+    }
+
     const body = await request.json();
-    const { name, email, phone, subject, message } = contactSchema.parse(body);
+    const contactData = contactSchema.parse(body);
 
-    // Here you would typically:
-    // 1. Send email using a service like Resend, SendGrid, or Nodemailer
-    // 2. Store in database
-    // 3. Send to CRM system
-    
-    // For now, we'll just log the contact form submission
-    console.log('Contact form submission:', {
-      name,
-      email,
-      phone,
-      subject,
-      message,
-      timestamp: new Date().toISOString(),
-    });
+    // Generate email content (ready for email service integration)
+    const _emailContent = generateContactEmailContent(contactData);
 
-    // Simulate email sending (replace with actual email service)
-    /* const emailContent = `
-      New contact form submission from Luigi Taxi website:
-      
-      Name: ${name}
-      Email: ${email}
-      Phone: ${phone}
-      Subject: ${subject}
-      
-      Message:
-      ${message}
-      
-      Submitted at: ${new Date().toLocaleString('de-AT', { 
-        timeZone: 'Europe/Vienna' 
-      })}
-    `; */
+    // Production implementation checklist:
+    // 1. Send email notification (Resend, SendGrid, etc.)
+    // 2. Store in database for tracking
+    // 3. Send to CRM system if applicable
+    // 4. Send auto-reply to customer
 
-    // TODO: Replace with actual email service
-    // await sendEmail({
-    //   to: 'info@luigitaxi.at',
-    //   subject: `Contact Form: ${subject}`,
-    //   text: emailContent,
-    // });
+    // Development logging only
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Contact form submission:', {
+        name: contactData.name,
+        email: contactData.email,
+        subject: contactData.subject,
+        timestamp: new Date().toISOString(),
+      });
+    }
 
     return NextResponse.json(
-      { 
-        success: true, 
-        message: 'Message sent successfully! We\'ll get back to you soon.' 
+      {
+        success: true,
+        message: "Message sent successfully! We'll get back to you soon."
       },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+        },
+      }
     );
   } catch (error) {
-    console.error('Contact form error:', error);
-    
+    // Development logging only
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Contact form error:', error);
+    }
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, message: 'Invalid form data', errors: error.issues },
+        {
+          success: false,
+          message: 'Please check your form details and try again.',
+          errors: error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          })),
+        },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      {
+        success: false,
+        message: `Something went wrong. Please try again or call us at ${BUSINESS_INFO.phone}.`
+      },
       { status: 500 }
     );
   }

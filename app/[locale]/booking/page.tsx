@@ -3,33 +3,15 @@
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import DatePicker from 'react-datepicker';
 import { Calendar, Clock, MapPin, Users, Car, Phone, CreditCard, Calculator } from 'lucide-react';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { bookingFormSchema, type BookingFormInput } from '@/lib/validations/booking';
+import { BUSINESS_INFO } from '@/lib/constants/business';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const bookingSchema = z.object({
-  pickupLocation: z.string().min(5, 'Please enter a pickup location'),
-  dropoffLocation: z.string().min(5, 'Please enter a dropoff location'),
-  pickupDate: z.date({
-    message: 'Please select a pickup date',
-  }),
-  pickupTime: z.string().min(1, 'Please select a pickup time'),
-  passengers: z.number().min(1).max(8),
-  vehicleType: z.enum(['standard', 'executive', 'minivan']),
-  serviceType: z.enum(['oneway', 'roundtrip', 'hourly', 'airport']),
-  returnDate: z.date().optional(),
-  returnTime: z.string().optional(),
-  specialRequests: z.string().optional(),
-  customerName: z.string().min(2, 'Please enter your name'),
-  customerEmail: z.string().email('Please enter a valid email'),
-  customerPhone: z.string().min(10, 'Please enter a valid phone number'),
-  paymentMethod: z.enum(['cash', 'card', 'online']),
-});
-
-type BookingFormData = z.infer<typeof bookingSchema>;
+type BookingFormData = BookingFormInput;
 
 const vehicleTypes = {
   standard: { name: 'Standard Sedan', capacity: 4, baseRate: 2.5, description: 'Comfortable sedan for up to 4 passengers' },
@@ -58,7 +40,7 @@ export default function BookingPage() {
     formState: { errors },
     reset,
   } = useForm<BookingFormData>({
-    resolver: zodResolver(bookingSchema),
+    resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       passengers: 1,
       vehicleType: 'standard',
@@ -132,11 +114,11 @@ export default function BookingPage() {
             <strong>Need immediate pickup?</strong> Call us now for instant booking
           </p>
           <a
-            href="tel:+436609002700"
+            href={`tel:${BUSINESS_INFO.phoneClean}`}
             className="inline-flex items-center bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
           >
             <Phone className="w-4 h-4 mr-2" />
-            +43 660 900 2700
+            {BUSINESS_INFO.phone}
           </a>
         </div>
 
@@ -453,7 +435,7 @@ export default function BookingPage() {
               </button>
               
               <a
-                href="tel:+436609002700"
+                href={`tel:${BUSINESS_INFO.phoneClean}`}
                 className="bg-gray-800 dark:bg-gray-700 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors text-center flex items-center justify-center"
               >
                 <Phone className="w-5 h-5 mr-2" />
