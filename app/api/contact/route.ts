@@ -7,31 +7,10 @@ import {
   getClientIdentifier,
   RATE_LIMITS,
 } from '@/lib/utils/rate-limit';
-
-// Generate contact notification email content (for future email integration)
-function generateContactEmailContent(data: {
-  name: string;
-  email: string;
-  phone: string;
-  subject: string;
-  message: string;
-}): string {
-  return `
-New contact form submission from ${BUSINESS_INFO.name} website:
-
-Name: ${data.name}
-Email: ${data.email}
-Phone: ${data.phone}
-Subject: ${data.subject}
-
-Message:
-${data.message}
-
-Submitted at: ${new Date().toLocaleString('de-AT', {
-  timeZone: BUSINESS_INFO.timezone
-})}
-  `.trim();
-}
+import {
+  sendContactFormEmail,
+  sendContactAutoReply,
+} from '@/services/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,24 +37,36 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const contactData = contactSchema.parse(body);
 
-    // Generate email content (ready for email service integration)
-    const _emailContent = generateContactEmailContent(contactData);
+    // Log contact submission
+    console.log('Contact form submission:', {
+      name: contactData.name,
+      email: contactData.email,
+      subject: contactData.subject,
+      timestamp: new Date().toISOString(),
+    });
 
-    // Production implementation checklist:
-    // 1. Send email notification (Resend, SendGrid, etc.)
-    // 2. Store in database for tracking
-    // 3. Send to CRM system if applicable
-    // 4. Send auto-reply to customer
+    // Send emails (non-blocking)
+    const emailPromises = [
+      sendContactFormEmail(contactData).catch((err) => {
+        console.error('Failed to send contact form email to admin:', err);
+        return { success: false, error: err.message };
+      }),
+      sendContactAutoReply(contactData).catch((err) => {
+        console.error('Failed to send auto-reply email:', err);
+        return { success: false, error: err.message };
+      }),
+    ];
 
-    // Development logging only
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Contact form submission:', {
-        name: contactData.name,
-        email: contactData.email,
-        subject: contactData.subject,
-        timestamp: new Date().toISOString(),
-      });
-    }
+    // Execute emails in background
+    Promise.all(emailPromises).then((results) => {
+      const [adminResult, autoReplyResult] = results;
+      if (adminResult.success) {
+        console.log(`✉️ Contact form notification sent to admin`);
+      }
+      if (autoReplyResult.success) {
+        console.log(`✉️ Auto-reply sent to ${contactData.email}`);
+      }
+    });
 
     return NextResponse.json(
       {
@@ -90,10 +81,7 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    // Development logging only
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Contact form error:', error);
-    }
+    console.error('Contact form error:', error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
