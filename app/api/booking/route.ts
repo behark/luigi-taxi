@@ -1,172 +1,228 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { bookingApiSchema } from '@/lib/validations/booking';
+import { BUSINESS_INFO } from '@/lib/constants/business';
+import {
+  checkRateLimit,
+  getClientIdentifier,
+  RATE_LIMITS,
+} from '@/lib/utils/rate-limit';
 
-const bookingSchema = z.object({
-  pickupLocation: z.string().min(5),
-  dropoffLocation: z.string().min(5),
-  pickupDate: z.string().transform((str) => new Date(str)),
-  pickupTime: z.string(),
-  passengers: z.number().min(1).max(8),
-  vehicleType: z.enum(['standard', 'executive', 'minivan']),
-  serviceType: z.enum(['oneway', 'roundtrip', 'hourly', 'airport']),
-  returnDate: z.string().transform((str) => str ? new Date(str) : undefined).optional(),
-  returnTime: z.string().optional(),
-  specialRequests: z.string().optional(),
-  customerName: z.string().min(2),
-  customerEmail: z.string().email(),
-  customerPhone: z.string().min(10),
-  paymentMethod: z.enum(['cash', 'card', 'online']),
-});
+// Helper functions for formatting
+function getVehicleName(type: string): string {
+  const names: Record<string, string> = {
+    standard: 'Standard Sedan',
+    executive: 'Executive Car',
+    minivan: 'Minivan',
+  };
+  return names[type] || type;
+}
+
+function getServiceTypeName(type: string): string {
+  const names: Record<string, string> = {
+    oneway: 'One Way',
+    roundtrip: 'Round Trip',
+    hourly: 'Hourly Rate',
+    airport: 'Airport Transfer',
+  };
+  return names[type] || type;
+}
+
+function getPaymentMethodName(method: string): string {
+  const names: Record<string, string> = {
+    cash: 'Cash Payment',
+    card: 'Credit/Debit Card',
+    online: 'Online Payment',
+  };
+  return names[method] || method;
+}
+
+// Calculate price based on booking details
+function calculatePrice(booking: {
+  vehicleType: string;
+  serviceType: string;
+  pickupLocation: string;
+  dropoffLocation: string;
+  pickupTime: string;
+}): number {
+  const { pricing } = BUSINESS_INFO;
+  const baseRate =
+    pricing.baseRates[booking.vehicleType as keyof typeof pricing.baseRates] ||
+    pricing.baseRates.standard;
+
+  // Estimate distance based on location complexity
+  // Note: In production, use Google Maps Distance Matrix API for accurate pricing
+  const estimatedDistance = Math.max(
+    5,
+    Math.min(50, Math.floor((booking.pickupLocation.length + booking.dropoffLocation.length) / 2))
+  );
+
+  // Get service multiplier
+  const serviceMultiplier =
+    pricing.serviceMultipliers[
+      booking.serviceType as keyof typeof pricing.serviceMultipliers
+    ] || 1;
+
+  // Calculate night surcharge
+  const hour = parseInt(booking.pickupTime.split(':')[0], 10);
+  const isNightTime =
+    hour >= pricing.nightHoursStart || hour < pricing.nightHoursEnd;
+  const nightMultiplier = isNightTime ? pricing.nightSurchargeMultiplier : 1;
+
+  // Calculate total
+  const estimated = estimatedDistance * baseRate * serviceMultiplier * nightMultiplier;
+  return Math.max(pricing.minimumFare, Math.round(estimated));
+}
+
+// Generate booking confirmation email content (for future email integration)
+function generateEmailContent(
+  bookingData: z.infer<typeof bookingApiSchema>,
+  bookingRef: string,
+  estimatedPrice: number
+): string {
+  const pickupDate =
+    bookingData.pickupDate instanceof Date
+      ? bookingData.pickupDate.toLocaleDateString('de-AT')
+      : new Date(bookingData.pickupDate).toLocaleDateString('de-AT');
+
+  return `
+Booking Confirmation - ${BUSINESS_INFO.name}
+
+Dear ${bookingData.customerName},
+
+Thank you for choosing ${BUSINESS_INFO.name}! Your booking has been received and is being processed.
+
+Booking Details:
+Reference: ${bookingRef}
+Pickup: ${bookingData.pickupLocation}
+Destination: ${bookingData.dropoffLocation}
+Date: ${pickupDate}
+Time: ${bookingData.pickupTime}
+Passengers: ${bookingData.passengers}
+Vehicle: ${getVehicleName(bookingData.vehicleType)}
+Service Type: ${getServiceTypeName(bookingData.serviceType)}
+Payment: ${getPaymentMethodName(bookingData.paymentMethod)}
+${bookingData.specialRequests ? `Special Requests: ${bookingData.specialRequests}` : ''}
+
+Estimated Price: ${BUSINESS_INFO.currencySymbol}${estimatedPrice}
+
+We will contact you within 15 minutes to confirm your booking and provide driver details.
+
+For any questions, please call us at ${BUSINESS_INFO.phone}.
+
+Best regards,
+${BUSINESS_INFO.name} Team
+  `.trim();
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check
+    const clientId = getClientIdentifier(request);
+    const rateLimitResult = checkRateLimit(clientId, RATE_LIMITS.booking);
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Too many booking requests. Please wait a moment before trying again.',
+          retryAfter: Math.ceil(rateLimitResult.resetIn / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000)),
+          },
+        }
+      );
+    }
+
     const body = await request.json();
-    const bookingData = bookingSchema.parse(body);
+    const bookingData = bookingApiSchema.parse(body);
 
     // Generate booking reference
     const bookingRef = `LT${Date.now().toString().slice(-8)}${Math.random().toString(36).slice(-3).toUpperCase()}`;
 
-    // Here you would typically:
-    // 1. Store booking in database
-    // 2. Send confirmation email
-    // 3. Notify drivers
-    // 4. Process payment if online
-    // 5. Send SMS confirmation
+    // Calculate estimated price
+    const estimatedPrice = calculatePrice({
+      vehicleType: bookingData.vehicleType,
+      serviceType: bookingData.serviceType,
+      pickupLocation: bookingData.pickupLocation,
+      dropoffLocation: bookingData.dropoffLocation,
+      pickupTime: bookingData.pickupTime,
+    });
 
-    // For now, we'll log the booking and simulate processing
+    // Prepare booking object for storage
     const booking = {
       ...bookingData,
       bookingReference: bookingRef,
-      status: 'pending',
+      status: 'pending' as const,
       createdAt: new Date().toISOString(),
-      estimatedPrice: calculatePrice(bookingData),
+      estimatedPrice,
     };
 
-    console.log('New booking received:', booking);
+    // Generate email content (ready for email service integration)
+    const _emailContent = generateEmailContent(bookingData, bookingRef, estimatedPrice);
 
-    // Simulate booking confirmation email content
-    /* const emailContent = `
-      Booking Confirmation - Luigi Taxi
-      
-      Dear ${bookingData.customerName},
-      
-      Thank you for choosing Luigi Taxi! Your booking has been received and is being processed.
-      
-      Booking Details:
-      Reference: ${bookingRef}
-      Pickup: ${bookingData.pickupLocation}
-      Destination: ${bookingData.dropoffLocation}
-      Date: ${bookingData.pickupDate.toLocaleDateString('de-AT')}
-      Time: ${bookingData.pickupTime}
-      Passengers: ${bookingData.passengers}
-      Vehicle: ${getVehicleName(bookingData.vehicleType)}
-      Service Type: ${getServiceTypeName(bookingData.serviceType)}
-      Payment: ${getPaymentMethodName(bookingData.paymentMethod)}
-      ${bookingData.specialRequests ? `Special Requests: ${bookingData.specialRequests}` : ''}
-      
-      Estimated Price: €${booking.estimatedPrice}
-      
-      We will contact you within 15 minutes to confirm your booking and provide driver details.
-      
-      For any questions, please call us at +43 660 900 2700.
-      
-      Best regards,
-      Luigi Taxi Team
-      
-      This booking was made on ${new Date().toLocaleString('de-AT', { timeZone: 'Europe/Vienna' })}
-    `; */
+    // Production implementation checklist:
+    // 1. Store booking in database (Prisma, Drizzle, etc.)
+    // 2. Send confirmation email (Resend, SendGrid, etc.)
+    // 3. Send SMS notification (Twilio, etc.)
+    // 4. Process payment if online (Stripe)
+    // 5. Notify admin/drivers
 
-    // TODO: Replace with actual services
-    // await sendEmail({
-    //   to: bookingData.customerEmail,
-    //   subject: `Booking Confirmation - ${bookingRef}`,
-    //   text: emailContent,
-    // });
-
-    // await sendSMS({
-    //   to: bookingData.customerPhone,
-    //   message: `Luigi Taxi: Booking ${bookingRef} received. We'll confirm within 15 minutes. Call +43 660 900 2700 for urgent matters.`,
-    // });
-
-    // await storeBooking(booking);
-
-    return NextResponse.json({
-      success: true,
-      message: 'Booking request received successfully! We\'ll confirm within 15 minutes.',
-      bookingReference: bookingRef,
-      estimatedPrice: booking.estimatedPrice,
-    }, { status: 200 });
-
-  } catch (error) {
-    console.error('Booking submission error:', error);
-    
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        success: false,
-        message: 'Invalid booking data',
-        errors: error.issues
-      }, { status: 400 });
+    // Development logging only
+    if (process.env.NODE_ENV === 'development') {
+      console.log('New booking received:', {
+        reference: bookingRef,
+        customer: bookingData.customerName,
+        pickup: bookingData.pickupLocation,
+        destination: bookingData.dropoffLocation,
+        date: booking.createdAt,
+        estimatedPrice,
+      });
     }
 
-    return NextResponse.json({
-      success: false,
-      message: 'Failed to process booking. Please try again or call us directly.'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Booking request received successfully! We'll confirm within 15 minutes.",
+        bookingReference: bookingRef,
+        estimatedPrice: booking.estimatedPrice,
+      },
+      {
+        status: 200,
+        headers: {
+          'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+        },
+      }
+    );
+  } catch (error) {
+    // Development logging only
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Booking submission error:', error);
+    }
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Please check your booking details and try again.',
+          errors: error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          })),
+        },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: `Failed to process booking. Please try again or call us directly at ${BUSINESS_INFO.phone}.`,
+      },
+      { status: 500 }
+    );
   }
 }
-
-function calculatePrice(booking: { vehicleType: string; serviceType: string; pickupLocation: string; dropoffLocation: string; pickupTime: string }): number {
-  const vehicleRates = {
-    standard: 2.5,
-    executive: 3.5,
-    minivan: 4.0
-  };
-
-  // Simple distance estimation (in real app, use Google Maps API)
-  const estimatedDistance = Math.max(5, Math.min(50, 
-    booking.pickupLocation.length + booking.dropoffLocation.length
-  ));
-
-  const baseRate = vehicleRates[booking.vehicleType as keyof typeof vehicleRates];
-  
-  let multiplier = 1;
-  if (booking.serviceType === 'roundtrip') multiplier = 1.8;
-  if (booking.serviceType === 'hourly') multiplier = 2.5;
-  if (booking.serviceType === 'airport') multiplier = 1.2;
-
-  // Time-based surcharge (night hours: 22:00-06:00)
-  const hour = parseInt(booking.pickupTime.split(':')[0]);
-  if (hour >= 22 || hour < 6) multiplier *= 1.2;
-
-  const estimated = estimatedDistance * baseRate * multiplier;
-  return Math.round(estimated);
-}
-
-// Helper functions for future email templates
-// export function getVehicleName(type: string): string {
-//   const names = {
-//     standard: 'Standard Sedan',
-//     executive: 'Executive Car',
-//     minivan: 'Minivan'
-//   };
-//   return names[type as keyof typeof names] || type;
-// }
-
-// export function getServiceTypeName(type: string): string {
-//   const names = {
-//     oneway: 'One Way',
-//     roundtrip: 'Round Trip',
-//     hourly: 'Hourly Rate',
-//     airport: 'Airport Transfer'
-//   };
-//   return names[type as keyof typeof names] || type;
-// }
-
-// export function getPaymentMethodName(method: string): string {
-//   const names = {
-//     cash: 'Cash Payment',
-//     card: 'Credit/Debit Card',
-//     online: 'Online Payment'
-//   };
-//   return names[method as keyof typeof names] || method;
-// }
