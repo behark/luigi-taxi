@@ -33,7 +33,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[90vh] flex items-center justify-center" role="banner">
+      <section className="relative min-h-[80vh] md:min-h-[90vh] flex items-center justify-center py-12 md:py-0" role="banner">
         <div className="absolute inset-0 z-0">
           <TaxiImage
             src={IMAGES.hero.src}
@@ -44,8 +44,8 @@ export default function Home() {
             priority
           />
         </div>
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold mb-3">
+        <div className="relative z-10 text-center text-white px-4 sm:px-6 max-w-4xl mx-auto">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-3">
             {t('hero.title')}
           </h1>
           <p className="text-2xl md:text-3xl text-yellow-400 font-semibold mb-4">
@@ -66,7 +66,7 @@ export default function Home() {
           title={t('serviceHighlights.title')}
           subtitle={t('serviceHighlights.subtitle')}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
           {[
             { icon: '📅', key: 'preBooking' },
             { icon: '✈️', key: 'stationAirport' },

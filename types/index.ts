@@ -62,11 +62,14 @@ export interface VehicleType {
 export interface Service {
   id: string;
   title: string;
+  titleDE?: string;
   description: string;
+  descriptionDE?: string;
   image: string;
   imageAlt: string;
   imageFallback: string;
   features: string[];
+  featuresDE?: string[];
 }
 
 export interface NavigationItem {
