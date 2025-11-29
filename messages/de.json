@@ -271,6 +271,7 @@
     "ourFleet": "Unsere Flotte",
     "bookNow": "Jetzt buchen",
     "contact": "Kontakt",
+    "faq": "Häufige Fragen",
     "airportTransfers": "Flughafentransfer",
     "businessTravel": "Geschäftsreisen",
     "cityTours": "Stadtrundfahrten",
@@ -281,6 +282,8 @@
     "creditDebitCards": "Kredit-/Debitkarten",
     "onlinePayment": "Online-Zahlung",
     "copyright": "© 2025 Luigi Taxi e.U. Alle Rechte vorbehalten.",
-    "availableLanguages": "Verfügbare Sprachen"
+    "availableLanguages": "Verfügbare Sprachen",
+    "terms": "AGB",
+    "privacy": "Datenschutz"
   }
 }

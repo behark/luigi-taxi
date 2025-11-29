@@ -53,12 +53,12 @@ export default function ServicesPage() {
 
       {/* Main Services */}
       <Section variant="gray">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {SERVICES.map((service) => (
-            <Card key={service.id} hover>
-              <CardImage 
-                src={service.image} 
-                alt={service.imageAlt} 
+            <Card key={service.id} hover id={service.id} className="scroll-mt-24">
+              <CardImage
+                src={service.image}
+                alt={service.imageAlt}
                 fallback={service.imageFallback}
               />
               <CardContent>

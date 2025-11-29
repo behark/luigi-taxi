@@ -41,6 +41,7 @@ export default function Footer() {
               <li><Link href="/fleet" className="hover:text-yellow-400">{t('ourFleet')}</Link></li>
               <li><Link href="/booking" className="hover:text-yellow-400">{t('bookNow')}</Link></li>
               <li><Link href="/contact" className="hover:text-yellow-400">{t('contact')}</Link></li>
+              <li><Link href="/faq" className="hover:text-yellow-400">{t('faq')}</Link></li>
             </ul>
           </div>
 
@@ -86,9 +87,26 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-gray-700 text-center">
-          <p>{t('copyright')}</p>
-          <p className="mt-2 text-sm">LGBTQ+ friendly • Available 24/7</p>
+        <div className="mt-8 pt-8 border-t border-gray-700">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-center md:text-left">
+              <p>{t('copyright')}</p>
+              <p className="mt-1 text-sm text-gray-400">LGBTQ+ friendly • Available 24/7</p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-4 text-sm">
+              <Link href="/terms" className="hover:text-yellow-400 transition-colors">
+                {t('terms')}
+              </Link>
+              <span className="text-gray-600">•</span>
+              <Link href="/privacy" className="hover:text-yellow-400 transition-colors">
+                {t('privacy')}
+              </Link>
+              <span className="text-gray-600">•</span>
+              <Link href="/faq" className="hover:text-yellow-400 transition-colors">
+                {t('faq')}
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
