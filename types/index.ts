@@ -1,15 +1,43 @@
 export interface BookingFormData {
   pickupLocation: string;
-  destination: string;
-  pickupDate: string;
+  dropoffLocation: string;
+  pickupDate: Date;
   pickupTime: string;
   passengers: number;
-  vehicleType: 'sedan' | 'executive' | 'minivan';
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
+  vehicleType: 'standard' | 'executive' | 'minivan';
+  serviceType: 'oneway' | 'roundtrip' | 'hourly' | 'airport';
+  returnDate?: Date;
+  returnTime?: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  paymentMethod: 'cash' | 'card' | 'online';
   specialRequests?: string;
+}
+
+export interface BookingApiRequest {
+  pickupLocation: string;
+  dropoffLocation: string;
+  pickupDate: string; // ISO string for API
+  pickupTime: string;
+  passengers: number;
+  vehicleType: 'standard' | 'executive' | 'minivan';
+  serviceType: 'oneway' | 'roundtrip' | 'hourly' | 'airport';
+  returnDate?: string;
+  returnTime?: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  paymentMethod: 'cash' | 'card' | 'online';
+  specialRequests?: string;
+}
+
+export interface BookingResponse {
+  success: boolean;
+  message: string;
+  bookingReference?: string;
+  estimatedPrice?: number;
+  errors?: Array<{ path: string[]; message: string }>;
 }
 
 export interface ContactFormData {
@@ -34,11 +62,14 @@ export interface VehicleType {
 export interface Service {
   id: string;
   title: string;
+  titleDE?: string;
   description: string;
+  descriptionDE?: string;
   image: string;
   imageAlt: string;
   imageFallback: string;
   features: string[];
+  featuresDE?: string[];
 }
 
 export interface NavigationItem {

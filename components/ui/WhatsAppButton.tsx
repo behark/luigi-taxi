@@ -2,6 +2,7 @@
 
 import { MessageCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { BUSINESS_INFO } from '@/lib/constants/business';
 
 interface WhatsAppButtonProps {
   phoneNumber?: string;
@@ -10,8 +11,8 @@ interface WhatsAppButtonProps {
   variant?: 'floating' | 'inline';
 }
 
-export default function WhatsAppButton({ 
-  phoneNumber = '+436609002700',
+export default function WhatsAppButton({
+  phoneNumber = BUSINESS_INFO.phoneClean,
   message = '',
   className = '',
   variant = 'floating'

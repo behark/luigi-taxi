@@ -1,4 +1,5 @@
 import { NavigationItem } from '@/types';
+import { BUSINESS_INFO } from './business';
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
   { href: '/', label: 'navigation.home' },
@@ -8,4 +9,5 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
   { href: '/contact', label: 'navigation.contact' },
 ];
 
-export const PHONE_NUMBER = '+43 660 900 2700';
+// Re-export phone number from centralized business info
+export const PHONE_NUMBER = BUSINESS_INFO.phone;
