@@ -69,15 +69,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Log booking (in production, save to database)
-    console.log('New booking received:', {
-      reference: bookingRef,
-      customer: bookingData.customerName,
-      route: `${bookingData.pickupLocation} → ${bookingData.dropoffLocation}`,
-      distance: `${priceCalculation.distanceKm} km`,
-      date: `${pickupDate} ${bookingData.pickupTime}`,
-      price: `€${priceCalculation.totalPrice}`,
-      nightSurcharge: priceCalculation.priceBreakdown.nightSurcharge,
-    });
+    console.log('New booking received:', booking);
 
     // Prepare email data
     const emailData = {

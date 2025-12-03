@@ -62,15 +62,15 @@
     "features": {
       "title": "Why Choose Luigi Taxi?",
       "subtitle": "Experience the difference with our professional taxi service",
-      "available": {
+      "available247": {
         "title": "24/7 Service",
         "description": "Available round the clock for your convenience"
       },
-      "professional": {
+      "professionalDrivers": {
         "title": "Professional Drivers",
         "description": "Experienced, courteous, and licensed drivers"
       },
-      "pricing": {
+      "fairPricing": {
         "title": "Fair Pricing",
         "description": "Transparent rates with no hidden charges"
       }

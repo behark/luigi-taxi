@@ -6,9 +6,10 @@ import Footer from '../components/Footer';
 import Navigation from '../../components/layout/Navigation';
 import { Providers } from '../providers';
 import { ErrorBoundary } from '../components/ErrorBoundary';
-import JsonLd, { generateHomePageSchemas } from '@/components/seo/JsonLd';
+import { generateHomePageSchemas } from '@/components/seo/JsonLd';
+
 import { generateSEO } from '@/lib/utils/seo';
-import { BUSINESS_INFO } from '@/lib/constants/business';
+
 
 const locales = ['en', 'de'] as const;
 type Locale = (typeof locales)[number];

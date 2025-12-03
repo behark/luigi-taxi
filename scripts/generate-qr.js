@@ -1,6 +1,6 @@
-const QRCode = require('qrcode');
-const fs = require('fs');
-const path = require('path');
+import QRCode from 'qrcode';
+import fs from 'fs';
+import path from 'path';
 
 const websiteUrl = 'https://luigitaxiat.netlify.app/de';
 const outputDir = path.join(__dirname, '..', 'public', 'qr');

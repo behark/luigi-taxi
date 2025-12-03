@@ -1,4 +1,4 @@
-import { useTranslations } from 'next-intl';
+
 import { Section, SectionHeader } from '@/components/ui/Section';
 import { Button } from '@/components/ui/Button';
 import Breadcrumb from '@/components/ui/Breadcrumb';
@@ -102,7 +102,7 @@ function FAQAccordion({ items, locale }: { items: FAQItem[]; locale: string }) {
 }
 
 export default function FAQPage({ params }: { params: { locale: string } }) {
-  const t = useTranslations();
+
   const locale = params.locale;
 
   return (
