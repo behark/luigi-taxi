@@ -1,11 +1,12 @@
 import { MetadataRoute } from 'next';
+import { LOCALES } from '@/lib/constants/locales';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://luigitaxi.at';
   const currentDate = new Date();
 
   // Define available locales
-  const locales = ['en', 'de'];
+  const locales = LOCALES;
   
   // Define main pages
   const pages = [

@@ -1,6 +1,7 @@
 'use client';
 
 import { Component, ErrorInfo, ReactNode } from 'react';
+import { BUSINESS_INFO } from '@/lib/constants/business';
 
 interface Props {
   children: ReactNode;
@@ -48,7 +49,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 Refresh Page
               </button>
               <a
-                href="tel:+436609002700"
+                href={`tel:${BUSINESS_INFO.phone}`}
                 className="flex-1 bg-gray-800 dark:bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
               >
                 Call Us

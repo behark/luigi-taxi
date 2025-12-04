@@ -6,18 +6,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import DatePicker from 'react-datepicker';
 import { Calendar, Clock, MapPin, Users, Car, Phone, CreditCard, Calculator } from 'lucide-react';
 import toast from 'react-hot-toast';
-import LoadingSpinner from '../../components/LoadingSpinner';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { bookingFormSchema, type BookingFormInput } from '@/lib/validations/booking';
 import { BUSINESS_INFO } from '@/lib/constants/business';
+import { calculateClientSideEstimatedPrice, type VehicleType, type ServiceType } from '@/lib/utils/pricing';
 import 'react-datepicker/dist/react-datepicker.css';
 
 type BookingFormData = BookingFormInput;
-
-const vehicleTypes = {
-  standard: { name: 'Standard Sedan', capacity: 4, baseRate: 2.5, description: 'Comfortable sedan for up to 4 passengers' },
-  executive: { name: 'Executive Car', capacity: 4, baseRate: 3.5, description: 'Premium vehicle for business travel' },
-  minivan: { name: 'Minivan', capacity: 8, baseRate: 4.0, description: 'Spacious vehicle for groups and luggage' },
-};
 
 const timeSlots = [
   '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
@@ -54,21 +49,20 @@ export default function BookingPage() {
 
   const calculateEstimatedPrice = () => {
     const { vehicleType, serviceType, pickupLocation, dropoffLocation } = watchedValues;
-    
+
     if (!vehicleType || !pickupLocation || !dropoffLocation) return;
-    
-    // Simple distance estimation (in a real app, you'd use Google Maps API)
-    const estimatedDistance = Math.max(5, Math.min(50, pickupLocation.length + dropoffLocation.length));
-    const baseRate = vehicleTypes[vehicleType].baseRate;
-    
-    let multiplier = 1;
-    if (serviceType === 'roundtrip') multiplier = 1.8;
-    if (serviceType === 'hourly') multiplier = 2.5;
-    if (serviceType === 'airport') multiplier = 1.2;
-    
-    const estimated = estimatedDistance * baseRate * multiplier;
-    setEstimatedPrice(Math.round(estimated));
-    setShowPriceCalculator(true);
+
+    const estimated = calculateClientSideEstimatedPrice({
+      pickupLocation,
+      dropoffLocation,
+      vehicleType: vehicleType as VehicleType,
+      serviceType: (serviceType || 'oneway') as ServiceType,
+    });
+
+    if (estimated !== null) {
+      setEstimatedPrice(estimated);
+      setShowPriceCalculator(true);
+    }
   };
 
   const onSubmit = async (data: BookingFormData) => {
