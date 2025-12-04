@@ -12,9 +12,31 @@ import {
   sendBookingConfirmationEmail,
   sendBookingNotificationToAdmin,
 } from '@/services/email';
+import { prisma } from '@/lib/prisma';
+import { verifyCors, handleCorsPreflightRequest, getCorsHeaders } from '@/lib/utils/cors';
+import { checkBodySize } from '@/lib/utils/body-size';
+
+/**
+ * Handle CORS preflight request
+ */
+export async function OPTIONS(request: NextRequest) {
+  return handleCorsPreflightRequest(request);
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // CORS check
+    const corsError = verifyCors(request);
+    if (corsError) {
+      return corsError;
+    }
+
+    // Body size check
+    const bodySizeError = await checkBodySize(request);
+    if (bodySizeError) {
+      return bodySizeError;
+    }
+
     // Rate limiting check
     const clientId = getClientIdentifier(request);
     const rateLimitResult = checkRateLimit(clientId, RATE_LIMITS.booking);
@@ -58,18 +80,25 @@ export async function POST(request: NextRequest) {
         ? bookingData.pickupDate.toLocaleDateString('de-AT')
         : new Date(bookingData.pickupDate).toLocaleDateString('de-AT');
 
-    // Prepare booking object
-    const booking = {
-      ...bookingData,
-      bookingReference: bookingRef,
-      status: 'pending' as const,
-      createdAt: new Date().toISOString(),
-      estimatedPrice: priceCalculation.totalPrice,
-      distanceKm: priceCalculation.distanceKm,
-    };
+    // Save booking to database
+    await prisma.booking.create({
+      data: {
+        pickupLocation: bookingData.pickupLocation,
+        dropoffLocation: bookingData.dropoffLocation,
+        date: bookingData.pickupDate,
+        time: bookingData.pickupTime,
+        passengers: bookingData.passengers,
+        luggage: bookingData.luggage || 0,
+        name: bookingData.customerName,
+        email: bookingData.customerEmail,
+        phone: bookingData.customerPhone,
+        notes: bookingData.specialRequests || null,
+        estimatedPrice: priceCalculation.totalPrice,
+        status: 'PENDING',
+      },
+    });
 
-    // Log booking (in production, save to database)
-    console.log('New booking received:', booking);
+    console.log('✅ Booking saved to database:', bookingRef);
 
     // Prepare email data
     const emailData = {
@@ -124,6 +153,7 @@ export async function POST(request: NextRequest) {
       {
         status: 200,
         headers: {
+          ...getCorsHeaders(request),
           'X-RateLimit-Remaining': String(rateLimitResult.remaining),
         },
       }

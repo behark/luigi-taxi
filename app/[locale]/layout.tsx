@@ -9,10 +9,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import { generateHomePageSchemas } from '@/components/seo/JsonLd';
 
 import { generateSEO } from '@/lib/utils/seo';
-
-
-const locales = ['en', 'de'] as const;
-type Locale = (typeof locales)[number];
+import { LOCALES, type Locale } from '@/lib/constants/locales';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +22,7 @@ const geistMono = Geist_Mono({
 });
 
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return LOCALES.map((locale) => ({ locale }));
 }
 
 export async function generateMetadata({
@@ -47,7 +44,7 @@ export default async function LocaleLayout({
   const { locale } = await params;
 
   // Validate that the incoming `locale` parameter is valid
-  if (!locales.includes(locale as Locale)) notFound();
+  if (!LOCALES.includes(locale as Locale)) notFound();
 
   // Providing all messages to the client
   const messages = await getMessages();

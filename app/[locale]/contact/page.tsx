@@ -7,7 +7,7 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { Phone, Mail, MapPin, Clock, Facebook, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
-import LoadingSpinner from '../../components/LoadingSpinner';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { BUSINESS_INFO } from '../../../lib/constants/business';
 
 const contactSchema = z.object({
