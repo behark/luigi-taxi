@@ -74,6 +74,18 @@ function formatPaymentMethod(method: string): string {
   return methods[method] || method;
 }
 
+// Helper to escape HTML to prevent injection attacks
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  };
+  return text.replace(/[&<>"']/g, (char) => map[char]);
+}
+
 // Send booking confirmation to customer
 export async function sendBookingConfirmationEmail(
   data: BookingEmailData
@@ -105,12 +117,12 @@ export async function sendBookingConfirmationEmail(
   <div style="background: #fff; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
     <h2 style="color: #059669; margin-top: 0;">Buchung eingegangen!</h2>
 
-    <p>Guten Tag ${data.customerName},</p>
+    <p>Guten Tag ${escapeHtml(data.customerName)},</p>
 
     <p>Vielen Dank für Ihre Buchung bei ${BUSINESS_INFO.name}! Ihre Anfrage wurde erfolgreich übermittelt.</p>
 
     <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0;">
-      <strong>Buchungsnummer: ${data.bookingReference}</strong>
+      <strong>Buchungsnummer: ${escapeHtml(data.bookingReference)}</strong>
     </div>
 
     <h3 style="border-bottom: 2px solid #f59e0b; padding-bottom: 10px;">Ihre Buchungsdetails</h3>
@@ -118,19 +130,19 @@ export async function sendBookingConfirmationEmail(
     <table style="width: 100%; border-collapse: collapse;">
       <tr>
         <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Abholort:</strong></td>
-        <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">${data.pickupLocation}</td>
+        <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">${escapeHtml(data.pickupLocation)}</td>
       </tr>
       <tr>
         <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Zielort:</strong></td>
-        <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">${data.dropoffLocation}</td>
+        <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">${escapeHtml(data.dropoffLocation)}</td>
       </tr>
       <tr>
         <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Datum:</strong></td>
-        <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">${data.pickupDate}</td>
+        <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">${escapeHtml(data.pickupDate)}</td>
       </tr>
       <tr>
         <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Uhrzeit:</strong></td>
-        <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">${data.pickupTime}</td>
+        <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">${escapeHtml(data.pickupTime)}</td>
       </tr>
       <tr>
         <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Fahrgäste:</strong></td>
@@ -151,7 +163,7 @@ export async function sendBookingConfirmationEmail(
       ${data.specialRequests ? `
       <tr>
         <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Besondere Wünsche:</strong></td>
-        <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">${data.specialRequests}</td>
+        <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; white-space: pre-wrap;">${escapeHtml(data.specialRequests)}</td>
       </tr>
       ` : ''}
     </table>
@@ -210,7 +222,7 @@ export async function sendBookingNotificationToAdmin(
       from: EMAIL_CONFIG.from,
       to: EMAIL_CONFIG.adminEmail,
       replyTo: data.customerEmail,
-      subject: `🚕 Neue Buchung: ${data.bookingReference} - ${data.customerName}`,
+      subject: `🚕 Neue Buchung: ${data.bookingReference} - ${data.customerName.substring(0, 50)}`,
       html: `
 <!DOCTYPE html>
 <html lang="de">
@@ -224,7 +236,7 @@ export async function sendBookingNotificationToAdmin(
 
   <div style="background: #fff; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
     <div style="background: #fef2f2; border-left: 4px solid #dc2626; padding: 15px; margin-bottom: 20px;">
-      <strong>Buchungsnummer: ${data.bookingReference}</strong><br>
+      <strong>Buchungsnummer: ${escapeHtml(data.bookingReference)}</strong><br>
       <strong>Eingegangen: ${new Date().toLocaleString('de-AT', { timeZone: BUSINESS_INFO.timezone })}</strong>
     </div>
 
@@ -232,15 +244,15 @@ export async function sendBookingNotificationToAdmin(
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
       <tr>
         <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb;"><strong>Name:</strong></td>
-        <td style="padding: 8px; border: 1px solid #e5e7eb;">${data.customerName}</td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(data.customerName)}</td>
       </tr>
       <tr>
         <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb;"><strong>Telefon:</strong></td>
-        <td style="padding: 8px; border: 1px solid #e5e7eb;"><a href="tel:${data.customerPhone}">${data.customerPhone}</a></td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;"><a href="tel:${escapeHtml(data.customerPhone)}">${escapeHtml(data.customerPhone)}</a></td>
       </tr>
       <tr>
         <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb;"><strong>E-Mail:</strong></td>
-        <td style="padding: 8px; border: 1px solid #e5e7eb;"><a href="mailto:${data.customerEmail}">${data.customerEmail}</a></td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;"><a href="mailto:${escapeHtml(data.customerEmail)}">${escapeHtml(data.customerEmail)}</a></td>
       </tr>
     </table>
 
@@ -248,15 +260,15 @@ export async function sendBookingNotificationToAdmin(
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
       <tr>
         <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb;"><strong>Von:</strong></td>
-        <td style="padding: 8px; border: 1px solid #e5e7eb;">${data.pickupLocation}</td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(data.pickupLocation)}</td>
       </tr>
       <tr>
         <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb;"><strong>Nach:</strong></td>
-        <td style="padding: 8px; border: 1px solid #e5e7eb;">${data.dropoffLocation}</td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(data.dropoffLocation)}</td>
       </tr>
       <tr>
         <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb;"><strong>Datum/Zeit:</strong></td>
-        <td style="padding: 8px; border: 1px solid #e5e7eb;">${data.pickupDate} um ${data.pickupTime}</td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(data.pickupDate)} um ${escapeHtml(data.pickupTime)}</td>
       </tr>
       <tr>
         <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb;"><strong>Fahrgäste:</strong></td>
@@ -281,7 +293,7 @@ export async function sendBookingNotificationToAdmin(
       ${data.specialRequests ? `
       <tr>
         <td style="padding: 8px; border: 1px solid #e5e7eb; background: #fef3c7;"><strong>Besondere Wünsche:</strong></td>
-        <td style="padding: 8px; border: 1px solid #e5e7eb; background: #fef3c7;">${data.specialRequests}</td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb; background: #fef3c7; white-space: pre-wrap;">${escapeHtml(data.specialRequests)}</td>
       </tr>
       ` : ''}
     </table>
@@ -319,7 +331,7 @@ export async function sendContactFormEmail(
       from: EMAIL_CONFIG.from,
       to: EMAIL_CONFIG.adminEmail,
       replyTo: data.email,
-      subject: `📬 Kontaktformular: ${data.subject}`,
+      subject: `📬 Kontaktformular: ${data.subject.substring(0, 50)}`,
       html: `
 <!DOCTYPE html>
 <html lang="de">
@@ -338,26 +350,26 @@ export async function sendContactFormEmail(
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
       <tr>
         <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb;"><strong>Name:</strong></td>
-        <td style="padding: 8px; border: 1px solid #e5e7eb;">${data.name}</td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(data.name)}</td>
       </tr>
       <tr>
         <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb;"><strong>E-Mail:</strong></td>
-        <td style="padding: 8px; border: 1px solid #e5e7eb;"><a href="mailto:${data.email}">${data.email}</a></td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;"><a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a></td>
       </tr>
       <tr>
         <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb;"><strong>Telefon:</strong></td>
-        <td style="padding: 8px; border: 1px solid #e5e7eb;"><a href="tel:${data.phone}">${data.phone}</a></td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;"><a href="tel:${escapeHtml(data.phone)}">${escapeHtml(data.phone)}</a></td>
       </tr>
     </table>
 
     <h3>Betreff</h3>
-    <p style="background: #f3f4f6; padding: 15px; border-radius: 8px;">${data.subject}</p>
+    <p style="background: #f3f4f6; padding: 15px; border-radius: 8px;">${escapeHtml(data.subject)}</p>
 
     <h3>Nachricht</h3>
-    <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; white-space: pre-wrap;">${data.message}</div>
+    <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(data.message)}</div>
 
     <div style="margin-top: 20px; padding: 15px; background: #dbeafe; border-radius: 8px; text-align: center;">
-      <a href="mailto:${data.email}?subject=Re: ${encodeURIComponent(data.subject)}"
+      <a href="mailto:${escapeHtml(data.email)}?subject=Re: ${encodeURIComponent(data.subject)}"
          style="background: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
         Antworten
       </a>
@@ -404,7 +416,7 @@ export async function sendContactAutoReply(
   </div>
 
   <div style="background: #fff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
-    <p>Guten Tag ${data.name},</p>
+    <p>Guten Tag ${escapeHtml(data.name)},</p>
 
     <p>Vielen Dank für Ihre Nachricht! Wir haben Ihre Anfrage erhalten und werden uns so schnell wie möglich bei Ihnen melden.</p>
 

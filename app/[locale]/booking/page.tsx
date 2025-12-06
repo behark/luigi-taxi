@@ -13,11 +13,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 type BookingFormData = BookingFormInput;
 
-const vehicleTypes = {
-  standard: { name: 'Standard Sedan', capacity: 4, baseRate: 2.5, description: 'Comfortable sedan for up to 4 passengers' },
-  executive: { name: 'Executive Car', capacity: 4, baseRate: 3.5, description: 'Premium vehicle for business travel' },
-  minivan: { name: 'Minivan', capacity: 8, baseRate: 4.0, description: 'Spacious vehicle for groups and luggage' },
-};
+// Use centralized vehicle type information
+const vehicleTypes = BUSINESS_INFO.pricing.vehicles;
 
 const timeSlots = [
   '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
@@ -54,18 +51,16 @@ export default function BookingPage() {
 
   const calculateEstimatedPrice = () => {
     const { vehicleType, serviceType, pickupLocation, dropoffLocation } = watchedValues;
-    
+
     if (!vehicleType || !pickupLocation || !dropoffLocation) return;
-    
+
     // Simple distance estimation (in a real app, you'd use Google Maps API)
     const estimatedDistance = Math.max(5, Math.min(50, pickupLocation.length + dropoffLocation.length));
-    const baseRate = vehicleTypes[vehicleType].baseRate;
-    
-    let multiplier = 1;
-    if (serviceType === 'roundtrip') multiplier = 1.8;
-    if (serviceType === 'hourly') multiplier = 2.5;
-    if (serviceType === 'airport') multiplier = 1.2;
-    
+    const baseRate = vehicleTypes[vehicleType as keyof typeof vehicleTypes].ratePerKm;
+
+    // Use service multipliers from BUSINESS_INFO
+    const multiplier = BUSINESS_INFO.pricing.serviceMultipliers[serviceType as keyof typeof BUSINESS_INFO.pricing.serviceMultipliers] || 1;
+
     const estimated = estimatedDistance * baseRate * multiplier;
     setEstimatedPrice(Math.round(estimated));
     setShowPriceCalculator(true);
@@ -218,9 +213,11 @@ export default function BookingPage() {
                       calculateEstimatedPrice();
                     }}
                   >
-                    <option value="standard">Standard Sedan (€2.5/km)</option>
-                    <option value="executive">Executive Car (€3.5/km)</option>
-                    <option value="minivan">Minivan (€4.0/km)</option>
+                    {Object.entries(vehicleTypes).map(([key, vehicle]) => (
+                      <option key={key} value={key}>
+                        {vehicle.name} (€{vehicle.ratePerKm}/km)
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

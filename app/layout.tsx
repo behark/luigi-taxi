@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { validateEnvVars } from "@/lib/utils/env-validation";
+
+// Validate environment variables at startup (warnings only, never blocks build)
+validateEnvVars(false);
 
 // Root layout metadata - locale-specific metadata is handled in [locale]/layout.tsx
 export const metadata: Metadata = {

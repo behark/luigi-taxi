@@ -101,9 +101,8 @@ function FAQAccordion({ items, locale }: { items: FAQItem[]; locale: string }) {
   );
 }
 
-export default function FAQPage({ params }: { params: { locale: string } }) {
-
-  const locale = params.locale;
+export default async function FAQPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">

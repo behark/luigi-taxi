@@ -9,7 +9,7 @@ export const BUSINESS_INFO = {
   countryCode: 'AT',
   phone: '+43 660 900 2700',
   phoneFormatted: '+43 660 900 2700',
-  phoneClean: '436609002700', // For WhatsApp and tel: links
+  phoneClean: '+436609002700', // For WhatsApp and tel: links
   email: 'booking@luigitaxi.at',
   infoEmail: 'info@luigitaxi.at',
   website: 'https://luigitaxi.at',
@@ -29,7 +29,7 @@ export const BUSINESS_INFO = {
   ],
   social: {
     facebook: 'https://facebook.com/luigitaxi',
-    whatsapp: 'https://wa.me/436609002700',
+    whatsapp: 'https://wa.me/+436609002700',
   },
   location: {
     coordinates: {

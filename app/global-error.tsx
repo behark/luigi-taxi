@@ -1,8 +1,10 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
-import { Phone, RefreshCw, Home } from 'lucide-react';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 export default function GlobalError({
   error,
@@ -17,51 +19,88 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html>
-      <body>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
-          <div className="max-w-md w-full text-center">
-            <div className="mb-8">
-              <div className="w-24 h-24 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-4xl">⚠️</span>
-              </div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+    <html lang="en">
+      <body style={{ margin: 0, padding: 0 }}>
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ maxWidth: '28rem', width: '100%', textAlign: 'center' }}>
+            <div style={{ marginBottom: '2rem' }}>
+              <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>⚠️</div>
+              <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '1rem' }}>
                 Something went wrong
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mb-8">
+              <p style={{ marginBottom: '2rem', color: '#666' }}>
                 We apologize for the inconvenience. Our team has been notified and is working to fix the issue.
               </p>
             </div>
 
-            <div className="space-y-4">
-              <Button size="lg" fullWidth onClick={reset}>
-                <RefreshCw className="w-5 h-5 mr-2" />
-                Try Again
-              </Button>
-              
-              <Button variant="outline" size="lg" fullWidth as="a" href="/">
-                <Home className="w-5 h-5 mr-2" />
-                Go Home
-              </Button>
-              
-              <Button variant="ghost" size="lg" fullWidth as="a" href="tel:+436609002700">
-                <Phone className="w-5 h-5 mr-2" />
-                Call Luigi Taxi
-              </Button>
+            <div style={{ marginBottom: '1rem' }}>
+              <button
+                onClick={reset}
+                style={{
+                  width: '100%',
+                  padding: '1rem 2rem',
+                  fontSize: '1.125rem',
+                  backgroundColor: '#eab308',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '9999px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  marginBottom: '1rem'
+                }}
+              >
+                ↻ Try Again
+              </button>
+
+              <a
+                href="/"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '1rem 2rem',
+                  fontSize: '1.125rem',
+                  backgroundColor: 'transparent',
+                  color: '#eab308',
+                  border: '2px solid #eab308',
+                  borderRadius: '9999px',
+                  textDecoration: 'none',
+                  fontWeight: '600',
+                  marginBottom: '1rem'
+                }}
+              >
+                ⌂ Go Home
+              </a>
+
+              <a
+                href="tel:+436609002700"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '1rem 2rem',
+                  fontSize: '1.125rem',
+                  backgroundColor: 'transparent',
+                  color: '#666',
+                  border: 'none',
+                  textDecoration: 'none',
+                  fontWeight: '600'
+                }}
+              >
+                ☎ Call Luigi Taxi
+              </a>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+            <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #e5e7eb' }}>
+              <p style={{ fontSize: '0.875rem', color: '#666' }}>
                 For immediate assistance, call us at{' '}
-                <a 
-                  href="tel:+436609002700" 
-                  className="text-yellow-600 dark:text-yellow-400 hover:underline font-semibold"
+                <a
+                  href="tel:+436609002700"
+                  style={{ color: '#eab308', fontWeight: '600', textDecoration: 'none' }}
                 >
                   +43 660 900 2700
                 </a>
               </p>
               {error.digest && (
-                <p className="text-xs text-gray-400 mt-2">
+                <p style={{ fontSize: '0.75rem', color: '#999', marginTop: '0.5rem' }}>
                   Error ID: {error.digest}
                 </p>
               )}

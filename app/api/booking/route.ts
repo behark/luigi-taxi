@@ -89,37 +89,53 @@ export async function POST(request: NextRequest) {
       specialRequests: bookingData.specialRequests,
     };
 
-    // Send emails (non-blocking - don't wait for completion to respond)
-    const emailPromises = [
-      sendBookingConfirmationEmail(emailData).catch((err) => {
-        console.error('Failed to send customer confirmation email:', err);
-        return { success: false, error: err.message };
-      }),
-      sendBookingNotificationToAdmin(emailData).catch((err) => {
-        console.error('Failed to send admin notification email:', err);
-        return { success: false, error: err.message };
-      }),
-    ];
+    // Send emails with proper error handling
+    const emailResults = await Promise.allSettled([
+      sendBookingConfirmationEmail(emailData),
+      sendBookingNotificationToAdmin(emailData),
+    ]);
 
-    // Execute emails in background
-    Promise.all(emailPromises).then((results) => {
-      const [customerResult, adminResult] = results;
-      if (customerResult.success) {
-        console.log(`✉️ Customer confirmation sent for ${bookingRef}`);
-      }
-      if (adminResult.success) {
-        console.log(`✉️ Admin notification sent for ${bookingRef}`);
-      }
-    });
+    const [customerResult, adminResult] = emailResults;
+
+    // Log email results
+    if (customerResult.status === 'fulfilled' && customerResult.value.success) {
+      console.log(`✉️ Customer confirmation sent for ${bookingRef}`);
+    } else {
+      console.error(`❌ Failed to send customer confirmation for ${bookingRef}:`,
+        customerResult.status === 'fulfilled' ? customerResult.value.error : customerResult.reason
+      );
+    }
+
+    if (adminResult.status === 'fulfilled' && adminResult.value.success) {
+      console.log(`✉️ Admin notification sent for ${bookingRef}`);
+    } else {
+      console.error(`❌ Failed to send admin notification for ${bookingRef}:`,
+        adminResult.status === 'fulfilled' ? adminResult.value.error : adminResult.reason
+      );
+    }
+
+    // Determine response message based on email success
+    const customerEmailFailed = customerResult.status === 'rejected' ||
+      (customerResult.status === 'fulfilled' && !customerResult.value.success);
+
+    let message = "Booking request received successfully! We'll confirm within 15 minutes.";
+    let warning: string | undefined;
+
+    if (customerEmailFailed) {
+      message = `Booking ${bookingRef} received, but we couldn't send the confirmation email.`;
+      warning = `Please save your booking reference: ${bookingRef}. We'll contact you via phone at ${bookingData.customerPhone}.`;
+    }
 
     return NextResponse.json(
       {
         success: true,
-        message: "Booking request received successfully! We'll confirm within 15 minutes.",
+        message,
+        warning,
         bookingReference: bookingRef,
         estimatedPrice: priceCalculation.totalPrice,
         distance: priceCalculation.priceBreakdown.distance,
         duration: priceCalculation.priceBreakdown.duration,
+        emailSent: !customerEmailFailed,
       },
       {
         status: 200,

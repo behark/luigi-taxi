@@ -3,7 +3,7 @@ import { IMAGES } from './images';
 
 export const VEHICLE_TYPES: VehicleType[] = [
   {
-    id: 'sedan',
+    id: 'standard',
     name: 'Standard Sedan',
     description: 'Comfortable and reliable transportation for up to 4 passengers',
     capacity: 4,

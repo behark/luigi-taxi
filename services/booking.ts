@@ -50,20 +50,20 @@ export class BookingService {
   }
 
   static calculateEstimatedPrice(
-    distance: number, 
-    vehicleType: string, 
+    distance: number,
+    vehicleType: string,
     duration?: number
   ): number {
     const basePrices = {
-      sedan: 2.5,
+      standard: 2.5,
       executive: 3.5,
       minivan: 4.0,
     };
 
-    const basePrice = basePrices[vehicleType as keyof typeof basePrices] || basePrices.sedan;
+    const basePrice = basePrices[vehicleType as keyof typeof basePrices] || basePrices.standard;
     const distancePrice = distance * basePrice;
     const timePrice = duration ? (duration / 60) * 15 : 0; // €15 per hour waiting
-    
+
     return Math.round((distancePrice + timePrice) * 100) / 100;
   }
 }

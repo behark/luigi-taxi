@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  // Disable static export for error pages to avoid build issues
+  generateBuildId: async () => {
+    return 'build-' + Date.now();
+  },
   async headers() {
     return [
       {

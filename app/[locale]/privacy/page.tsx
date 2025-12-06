@@ -3,8 +3,8 @@ import Breadcrumb from '@/components/ui/Breadcrumb';
 import { BUSINESS_INFO } from '@/lib/constants/business';
 import Link from 'next/link';
 
-export default function PrivacyPage({ params }: { params: { locale: string } }) {
-  const locale = params.locale;
+export default async function PrivacyPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const isDE = locale === 'de';
 
   return (

@@ -45,33 +45,49 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
 
-    // Send emails (non-blocking)
-    const emailPromises = [
-      sendContactFormEmail(contactData).catch((err) => {
-        console.error('Failed to send contact form email to admin:', err);
-        return { success: false, error: err.message };
-      }),
-      sendContactAutoReply(contactData).catch((err) => {
-        console.error('Failed to send auto-reply email:', err);
-        return { success: false, error: err.message };
-      }),
-    ];
+    // Send emails with proper error handling
+    const emailResults = await Promise.allSettled([
+      sendContactFormEmail(contactData),
+      sendContactAutoReply(contactData),
+    ]);
 
-    // Execute emails in background
-    Promise.all(emailPromises).then((results) => {
-      const [adminResult, autoReplyResult] = results;
-      if (adminResult.success) {
-        console.log(`✉️ Contact form notification sent to admin`);
-      }
-      if (autoReplyResult.success) {
-        console.log(`✉️ Auto-reply sent to ${contactData.email}`);
-      }
-    });
+    const [adminResult, autoReplyResult] = emailResults;
+
+    // Log email results
+    if (adminResult.status === 'fulfilled' && adminResult.value.success) {
+      console.log(`✉️ Contact form notification sent to admin`);
+    } else {
+      console.error(`❌ Failed to send contact form to admin:`,
+        adminResult.status === 'fulfilled' ? adminResult.value.error : adminResult.reason
+      );
+    }
+
+    if (autoReplyResult.status === 'fulfilled' && autoReplyResult.value.success) {
+      console.log(`✉️ Auto-reply sent to ${contactData.email}`);
+    } else {
+      console.error(`❌ Failed to send auto-reply:`,
+        autoReplyResult.status === 'fulfilled' ? autoReplyResult.value.error : autoReplyResult.reason
+      );
+    }
+
+    // Determine response message based on email success
+    const autoReplyFailed = autoReplyResult.status === 'rejected' ||
+      (autoReplyResult.status === 'fulfilled' && !autoReplyResult.value.success);
+
+    let message = "Message sent successfully! We'll get back to you soon.";
+    let warning: string | undefined;
+
+    if (autoReplyFailed) {
+      message = "Your message was received, but we couldn't send the confirmation email.";
+      warning = `We received your message and will respond to ${contactData.email} shortly.`;
+    }
 
     return NextResponse.json(
       {
         success: true,
-        message: "Message sent successfully! We'll get back to you soon."
+        message,
+        warning,
+        emailSent: !autoReplyFailed,
       },
       {
         status: 200,

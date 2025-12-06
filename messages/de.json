@@ -41,7 +41,6 @@
       "businessPrivate": "Geschäfts- und Privatfahrten",
       "flatRate": "Pauschalpreise möglich"
     },
-    "learnMore": "Mehr Erfahren",
     "features": {
       "title": "Warum Luigi Taxi wählen?",
       "subtitle": "Erleben Sie den Unterschied mit unserem professionellen Taxiservice",
@@ -72,9 +71,9 @@
       "minivan": {
         "title": "Kleinbus",
         "description": "Geräumige Fahrzeuge für Gruppen und Gepäck"
-      }
+      },
+      "learnMore": "Mehr Erfahren"
     },
-    "learnMore": "Mehr Erfahren",
     "services": {
       "title": "Unsere Dienstleistungen",
       "subtitle": "Professionelle Transportlösungen für jeden Bedarf",
