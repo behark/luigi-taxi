@@ -103,7 +103,8 @@ export default function GooglePlacesAutocomplete({
         google.maps.event.removeListener(listener);
       }
     };
-  }, [isLoaded, onChange, onPlaceSelected]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]);
 
   return (
     <div className="relative">
