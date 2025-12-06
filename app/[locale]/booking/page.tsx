@@ -7,6 +7,8 @@ import DatePicker from 'react-datepicker';
 import { Calendar, Clock, MapPin, Users, Car, Phone, CreditCard, Calculator } from 'lucide-react';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import GooglePlacesAutocomplete from '@/components/forms/GooglePlacesAutocomplete';
+import { calculatePriceEstimate } from '@/lib/utils/client-maps';
 import { bookingFormSchema, type BookingFormInput } from '@/lib/validations/booking';
 import { BUSINESS_INFO } from '@/lib/constants/business';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -48,22 +50,32 @@ export default function BookingPage() {
   });
 
   const watchedValues = watch();
+  const [isCalculating, setIsCalculating] = useState(false);
 
-  const calculateEstimatedPrice = () => {
-    const { vehicleType, serviceType, pickupLocation, dropoffLocation } = watchedValues;
+  const calculateEstimatedPrice = async () => {
+    const { vehicleType, serviceType, pickupLocation, dropoffLocation, pickupTime } = watchedValues;
 
     if (!vehicleType || !pickupLocation || !dropoffLocation) return;
+    if (pickupLocation.length < 3 || dropoffLocation.length < 3) return;
 
-    // Simple distance estimation (in a real app, you'd use Google Maps API)
-    const estimatedDistance = Math.max(5, Math.min(50, pickupLocation.length + dropoffLocation.length));
-    const baseRate = vehicleTypes[vehicleType as keyof typeof vehicleTypes].ratePerKm;
+    setIsCalculating(true);
+    try {
+      const result = await calculatePriceEstimate(
+        pickupLocation,
+        dropoffLocation,
+        vehicleType as 'standard' | 'executive' | 'minivan',
+        serviceType as 'oneway' | 'roundtrip' | 'hourly' | 'airport',
+        pickupTime
+      );
 
-    // Use service multipliers from BUSINESS_INFO
-    const multiplier = BUSINESS_INFO.pricing.serviceMultipliers[serviceType as keyof typeof BUSINESS_INFO.pricing.serviceMultipliers] || 1;
-
-    const estimated = estimatedDistance * baseRate * multiplier;
-    setEstimatedPrice(Math.round(estimated));
-    setShowPriceCalculator(true);
+      setEstimatedPrice(result.price);
+      setShowPriceCalculator(true);
+    } catch (error) {
+      console.error('Price calculation failed:', error);
+      toast.error('Could not calculate price estimate. Please try again.');
+    } finally {
+      setIsCalculating(false);
+    }
   };
 
   const onSubmit = async (data: BookingFormData) => {
@@ -132,38 +144,46 @@ export default function BookingPage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Pickup Location *
                   </label>
-                  <input
-                    type="text"
-                    {...register('pickupLocation')}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Enter pickup address"
-                    onChange={(e) => {
-                      register('pickupLocation').onChange(e);
-                      if (e.target.value.length > 5) calculateEstimatedPrice();
-                    }}
+                  <Controller
+                    control={control}
+                    name="pickupLocation"
+                    render={({ field }) => (
+                      <GooglePlacesAutocomplete
+                        value={field.value || ''}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          if (value.length > 5 && watchedValues.dropoffLocation) {
+                            calculateEstimatedPrice();
+                          }
+                        }}
+                        placeholder="Enter pickup address"
+                        error={errors.pickupLocation?.message}
+                      />
+                    )}
                   />
-                  {errors.pickupLocation && (
-                    <p className="text-red-500 text-sm mt-1">{errors.pickupLocation.message}</p>
-                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Dropoff Location *
                   </label>
-                  <input
-                    type="text"
-                    {...register('dropoffLocation')}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Enter destination address"
-                    onChange={(e) => {
-                      register('dropoffLocation').onChange(e);
-                      if (e.target.value.length > 5) calculateEstimatedPrice();
-                    }}
+                  <Controller
+                    control={control}
+                    name="dropoffLocation"
+                    render={({ field }) => (
+                      <GooglePlacesAutocomplete
+                        value={field.value || ''}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          if (value.length > 5 && watchedValues.pickupLocation) {
+                            calculateEstimatedPrice();
+                          }
+                        }}
+                        placeholder="Enter destination address"
+                        error={errors.dropoffLocation?.message}
+                      />
+                    )}
                   />
-                  {errors.dropoffLocation && (
-                    <p className="text-red-500 text-sm mt-1">{errors.dropoffLocation.message}</p>
-                  )}
                 </div>
               </div>
 
@@ -314,19 +334,28 @@ export default function BookingPage() {
             </div>
 
             {/* Price Estimation */}
-            {showPriceCalculator && estimatedPrice && (
+            {(showPriceCalculator || isCalculating) && (
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <Calculator className="w-5 h-5 mr-2 text-yellow-500" />
                   Estimated Price
                 </h3>
-                <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mb-2">
-                  €{estimatedPrice}
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This is an estimate based on distance and service type. Final price will be confirmed after booking.
-                  {watchedValues.serviceType === 'hourly' && ' Hourly rate: €35/hour minimum 2 hours.'}
-                </p>
+                {isCalculating ? (
+                  <div className="flex items-center justify-center py-4">
+                    <LoadingSpinner size="md" color="yellow" />
+                    <span className="ml-2 text-gray-600 dark:text-gray-400">Calculating price...</span>
+                  </div>
+                ) : estimatedPrice ? (
+                  <>
+                    <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mb-2">
+                      €{estimatedPrice}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      This is an estimate based on real distance. Final price will be confirmed after booking.
+                      {watchedValues.serviceType === 'hourly' && ' Hourly rate: €35/hour minimum 2 hours.'}
+                    </p>
+                  </>
+                ) : null}
               </div>
             )}
 

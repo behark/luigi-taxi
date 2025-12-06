@@ -133,19 +133,16 @@ function fallbackDistanceEstimation(
     }
   }
 
-  // Default estimation based on text complexity
-  // This is a rough heuristic - real distances should use Google Maps
-  const complexity = Math.max(
-    5,
-    Math.min(30, Math.floor((origin.length + destination.length) / 4))
-  );
+  // Default estimation for unknown locations
+  // Use a reasonable default instead of text length calculation
+  const defaultDistance = 15; // Reasonable default for local taxi rides
 
   return {
     success: true,
-    distanceKm: complexity,
-    distanceText: `~${complexity} km (geschätzt)`,
-    durationMinutes: Math.ceil(complexity * 1.5),
-    durationText: `~${Math.ceil(complexity * 1.5)} Min. (geschätzt)`,
+    distanceKm: defaultDistance,
+    distanceText: `~${defaultDistance} km (geschätzt)`,
+    durationMinutes: Math.ceil(defaultDistance * 1.5),
+    durationText: `~${Math.ceil(defaultDistance * 1.5)} Min. (geschätzt)`,
   };
 }
 
