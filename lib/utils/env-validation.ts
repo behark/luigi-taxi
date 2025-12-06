@@ -35,7 +35,7 @@ const ENV_VARS: EnvVar[] = [
     description: 'Public URL of the website (for SEO and canonical URLs)',
   },
   {
-    name: 'ADMIN_EMAIL',
+    name: 'EMAIL_TO_ADMIN',
     required: false,
     description: 'Admin email address for receiving booking notifications',
   },

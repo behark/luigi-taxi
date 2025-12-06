@@ -229,7 +229,7 @@
    ```bash
    RESEND_API_KEY=your_resend_api_key_here
    GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
-   ADMIN_EMAIL=your_admin_email@luigitaxi.at
+   EMAIL_TO_ADMIN=your_admin_email@luigitaxi.at
    ```
 
 2. Test email sending in production
