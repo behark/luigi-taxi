@@ -7,7 +7,7 @@ validateEnvVars(false);
 
 // Root layout metadata - locale-specific metadata is handled in [locale]/layout.tsx
 export const metadata: Metadata = {
-  metadataBase: new URL('https://luigitaxi.at'),
+  metadataBase: new URL('https://taxiluigi.at'),
   title: {
     default: 'Luigi Taxi - Professional Taxi Service in Wiener Neustadt',
     template: '%s | Luigi Taxi',
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'de_AT',
-    url: 'https://luigitaxi.at',
+    url: 'https://taxiluigi.at',
     title: 'Luigi Taxi - Professional Taxi Service in Wiener Neustadt',
     description: 'Professional and reliable taxi service in Wiener Neustadt, Austria. Available 24/7, LGBTQ+ friendly.',
     siteName: 'Luigi Taxi',

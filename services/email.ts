@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Email configuration
 const EMAIL_CONFIG = {
-  from: process.env.EMAIL_FROM || `${BUSINESS_INFO.name} <booking@luigitaxi.at>`,
+  from: process.env.EMAIL_FROM || `${BUSINESS_INFO.name} <booking@taxiluigi.at>`,
   adminEmail: process.env.EMAIL_TO_ADMIN || BUSINESS_INFO.infoEmail,
   replyTo: BUSINESS_INFO.email,
 };

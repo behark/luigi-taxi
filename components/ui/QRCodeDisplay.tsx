@@ -62,7 +62,7 @@ export default function QRCodeDisplay({ className = '', showActions = true }: QR
             <div class="container">
               <h1>Luigi Taxi</h1>
               <img src="${window.location.origin}${qrCodePath}" alt="Luigi Taxi QR Code" />
-              <p>Scan to visit: luigitaxiat.netlify.app</p>
+              <p>Scan to visit: taxiluigi.at</p>
             </div>
             <script>
               window.onload = () => {
@@ -85,14 +85,14 @@ export default function QRCodeDisplay({ className = '', showActions = true }: QR
         await navigator.share({
           title: 'Luigi Taxi',
           text: 'Visit Luigi Taxi website',
-          url: 'https://luigitaxiat.netlify.app/de'
+          url: 'https://taxiluigi.at/de'
         });
       } catch (error) {
         console.error('Error sharing:', error);
       }
     } else {
       // Fallback - copy URL to clipboard
-      navigator.clipboard.writeText('https://luigitaxiat.netlify.app/de');
+      navigator.clipboard.writeText('https://taxiluigi.at/de');
       alert('Website URL copied to clipboard!');
     }
   };
@@ -143,7 +143,7 @@ export default function QRCodeDisplay({ className = '', showActions = true }: QR
       {/* Website URL */}
       <div className="text-center mb-4">
         <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          luigitaxiat.netlify.app
+          taxiluigi.at
         </p>
       </div>
 

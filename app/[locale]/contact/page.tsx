@@ -94,11 +94,11 @@ export default function ContactPage() {
                 <Mail className="w-6 h-6 text-yellow-500 mt-1" />
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">Email</h3>
-                  <a 
-                    href="mailto:info@luigitaxi.at" 
+                  <a
+                    href="mailto:luigitaxi1@gmail.com"
                     className="text-gray-600 dark:text-gray-400 hover:text-yellow-500 transition-colors"
                   >
-                    info@luigitaxi.at
+                    luigitaxi1@gmail.com
                   </a>
                   <p className="text-sm text-gray-500 dark:text-gray-500">We&apos;ll respond within 2 hours</p>
                 </div>

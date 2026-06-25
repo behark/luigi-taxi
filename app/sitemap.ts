@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://luigitaxi.at';
+  const baseUrl = 'https://taxiluigi.at';
   const currentDate = new Date();
 
   // Define available locales

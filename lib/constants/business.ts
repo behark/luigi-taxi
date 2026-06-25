@@ -10,9 +10,9 @@ export const BUSINESS_INFO = {
   phone: '+43 660 900 2700',
   phoneFormatted: '+43 660 900 2700',
   phoneClean: '+436609002700', // For WhatsApp and tel: links
-  email: 'booking@luigitaxi.at',
-  infoEmail: 'info@luigitaxi.at',
-  website: 'https://luigitaxi.at',
+  email: 'luigitaxi1@gmail.com',
+  infoEmail: 'luigitaxi1@gmail.com',
+  website: 'https://taxiluigi.at',
   hours: '24/7',
   timezone: 'Europe/Vienna',
   currency: 'EUR',
