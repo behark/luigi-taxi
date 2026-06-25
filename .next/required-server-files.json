@@ -2,7 +2,6 @@
   "version": 1,
   "config": {
     "env": {},
-    "webpack": null,
     "eslint": {
       "ignoreDuringBuilds": false
     },
@@ -97,7 +96,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/home/behar/Desktop/taxi/luigi-taxi",
+    "outputFileTracingRoot": "/home/behar/Desktop/luigi-taxi",
     "experimental": {
       "useSkewCookie": false,
       "cacheLife": {
@@ -202,6 +201,7 @@
       "devtoolSegmentExplorer": true,
       "browserDebugInfoInTerminal": false,
       "optimizeRouterScrolling": false,
+      "middlewareClientMaxBodySize": 10485760,
       "optimizePackageImports": [
         "lucide-react",
         "framer-motion",
@@ -287,13 +287,10 @@
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.ts",
     "turbopack": {
-      "root": "/home/behar/Desktop/taxi/luigi-taxi",
-      "resolveAlias": {
-        "next-intl/config": "./i18n/request.ts"
-      }
+      "root": "/home/behar/Desktop/luigi-taxi"
     }
   },
-  "appDir": "/home/behar/Desktop/taxi/luigi-taxi",
+  "appDir": "/home/behar/Desktop/luigi-taxi",
   "relativeAppDir": "",
   "files": [
     ".next/routes-manifest.json",
@@ -303,6 +300,8 @@
     ".next/server/functions-config-manifest.json",
     ".next/server/middleware-manifest.json",
     ".next/server/middleware-build-manifest.js",
+    ".next/server/middleware-react-loadable-manifest.js",
+    ".next/react-loadable-manifest.json",
     ".next/server/app-paths-manifest.json",
     ".next/app-path-routes-manifest.json",
     ".next/app-build-manifest.json",

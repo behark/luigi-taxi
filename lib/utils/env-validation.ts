@@ -20,11 +20,6 @@ interface EnvVar {
 
 const ENV_VARS: EnvVar[] = [
   {
-    name: 'RESEND_API_KEY',
-    required: false,
-    description: 'Resend API key for sending emails (booking confirmations, contact forms)',
-  },
-  {
     name: 'GOOGLE_MAPS_API_KEY',
     required: false,
     description: 'Google Maps API key for distance calculations and route planning',
@@ -33,11 +28,6 @@ const ENV_VARS: EnvVar[] = [
     name: 'NEXT_PUBLIC_SITE_URL',
     required: false,
     description: 'Public URL of the website (for SEO and canonical URLs)',
-  },
-  {
-    name: 'EMAIL_TO_ADMIN',
-    required: false,
-    description: 'Admin email address for receiving booking notifications',
   },
 ];
 

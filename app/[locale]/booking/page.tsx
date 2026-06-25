@@ -81,22 +81,41 @@ export default function BookingPage() {
   const onSubmit = async (data: BookingFormData) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/booking', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        toast.success('Booking request sent successfully! We\'ll confirm your booking within 15 minutes.');
-        reset();
-        setEstimatedPrice(null);
-        setShowPriceCalculator(false);
-      } else {
-        throw new Error('Failed to submit booking');
-      }
+      const pickupDate =
+        data.pickupDate instanceof Date
+          ? data.pickupDate.toLocaleDateString('de-AT')
+          : new Date(data.pickupDate).toLocaleDateString('de-AT');
+      const ref = `LT${Date.now().toString().slice(-8)}`;
+      const subject = `Taxi booking ${ref} — ${data.customerName}`;
+      const lines = [
+        `Booking reference: ${ref}`,
+        '',
+        `Name: ${data.customerName}`,
+        `Email: ${data.customerEmail}`,
+        `Phone: ${data.customerPhone}`,
+        '',
+        `Pickup: ${data.pickupLocation}`,
+        `Dropoff: ${data.dropoffLocation}`,
+        `Date: ${pickupDate}`,
+        `Time: ${data.pickupTime}`,
+        `Passengers: ${data.passengers}`,
+        `Vehicle: ${data.vehicleType}`,
+        `Service: ${data.serviceType}`,
+        `Payment: ${data.paymentMethod}`,
+      ];
+      if (estimatedPrice) lines.push(`Estimated price: €${estimatedPrice}`);
+      if (data.specialRequests) lines.push('', 'Special requests:', data.specialRequests);
+      window.location.href = `mailto:${BUSINESS_INFO.email}?subject=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(lines.join('\n'))}`;
+      toast.success('Opening your email app to send your booking…');
+      reset();
+      setEstimatedPrice(null);
+      setShowPriceCalculator(false);
     } catch {
-      toast.error('Failed to submit booking. Please try again or call us directly.');
+      toast.error(
+        `Something went wrong. Please call us at ${BUSINESS_INFO.phone} to book.`
+      );
     } finally {
       setIsSubmitting(false);
     }

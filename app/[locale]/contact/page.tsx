@@ -35,20 +35,21 @@ export default function ContactPage() {
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        toast.success('Message sent successfully! We\'ll get back to you soon.');
-        reset();
-      } else {
-        throw new Error('Failed to send message');
-      }
+      const subject = `Contact request: ${data.subject}`;
+      const body =
+        `Name: ${data.name}\n` +
+        `Email: ${data.email}\n` +
+        `Phone: ${data.phone}\n\n` +
+        `${data.message}\n`;
+      window.location.href = `mailto:${BUSINESS_INFO.email}?subject=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(body)}`;
+      toast.success('Opening your email app to send your message…');
+      reset();
     } catch {
-      toast.error('Failed to send message. Please try again or call us directly.');
+      toast.error(
+        `Something went wrong. Please email ${BUSINESS_INFO.email} or call ${BUSINESS_INFO.phone}.`
+      );
     } finally {
       setIsSubmitting(false);
     }

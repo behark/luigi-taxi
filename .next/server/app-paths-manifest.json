@@ -1,1 +1,14 @@
-{}
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/maps/distance/route": "app/api/maps/distance/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js",
+  "/[locale]/booking/page": "app/[locale]/booking/page.js",
+  "/[locale]/contact/page": "app/[locale]/contact/page.js",
+  "/[locale]/faq/page": "app/[locale]/faq/page.js",
+  "/[locale]/fleet/page": "app/[locale]/fleet/page.js",
+  "/[locale]/page": "app/[locale]/page.js",
+  "/[locale]/privacy/page": "app/[locale]/privacy/page.js",
+  "/[locale]/services/page": "app/[locale]/services/page.js",
+  "/[locale]/terms/page": "app/[locale]/terms/page.js"
+}
