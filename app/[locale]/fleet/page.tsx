@@ -190,8 +190,37 @@ export default function FleetPage() {
         </div>
       </Section>
 
-      {/* Fleet Features */}
+      {/* Heritage: previous vehicle (Tesla Model S) */}
       <Section>
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div className="relative h-72 sm:h-80 rounded-2xl overflow-hidden shadow-md">
+            <TaxiImage
+              src={IMAGES.tesla.src}
+              alt={IMAGES.tesla.alt}
+              fallback={IMAGES.tesla.fallback}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
+          <div>
+            <span className="inline-block bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
+              {isDE ? 'Langjährige Erfahrung' : 'Years of Experience'}
+            </span>
+            <h3 className="text-2xl font-bold mb-3">
+              {isDE ? 'Seit Jahren für Sie unterwegs' : 'On the road for you for years'}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              {isDE
+                ? 'Zuverlässigkeit hat bei Luigi Taxi Tradition. Unser bewährter Tesla Model S hat uns über Jahre treue Dienste in Wiener Neustadt geleistet – dieselbe Sorgfalt und derselbe Service erwarten Sie heute in unserem neuen Jaecoo J7.'
+                : 'Reliability is a tradition at Luigi Taxi. Our trusted Tesla Model S served us faithfully for years in Wiener Neustadt — and you can expect the same care and service today in our new Jaecoo J7.'}
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* Fleet Features */}
+      <Section variant="gray">
         <SectionHeader
           title={isDE ? 'Warum unser Fahrzeug überzeugt' : 'Why Our Vehicle Stands Out'}
           subtitle={isDE ? 'Qualität und Komfort bei jeder Fahrt' : 'Quality and comfort in every ride'}
@@ -214,7 +243,7 @@ export default function FleetPage() {
       </Section>
 
       {/* Vehicle Features Details */}
-      <Section variant="gray">
+      <Section>
         <SectionHeader
           title={isDE ? 'Standardausstattung' : 'Standard Features'}
           subtitle={isDE ? 'Jede Fahrt mit diesen Premium-Annehmlichkeiten' : 'Every ride comes with these premium amenities'}
@@ -241,7 +270,7 @@ export default function FleetPage() {
       </Section>
 
       {/* Special Requirements */}
-      <Section>
+      <Section variant="gray">
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-8 md:p-12">
           <div className="text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 dark:text-white">

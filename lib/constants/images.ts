@@ -15,7 +15,7 @@ export const IMAGES = {
       fallback: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&q=80',
     },
     executive: {
-      src: '/images/jaecoo-j7-front.jpg',
+      src: '/images/jaecoo-j7-feature.jpg',
       alt: 'Luigi Taxi Jaecoo J7 SUV - executive vehicle for business and comfort travel',
       fallback: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&h=600&fit=crop&crop=center&q=80',
     },
@@ -80,5 +80,12 @@ export const IMAGES = {
         fallback: '/images/placeholder.svg',
       },
     ],
+  },
+
+  // Previous vehicle (heritage): Luigi's branded Tesla Model S
+  tesla: {
+    src: '/images/luigi-tesla.jpg',
+    alt: 'Luigi Taxi Tesla Model S - our trusted previous vehicle in Wiener Neustadt',
+    fallback: '/images/placeholder.svg',
   },
 };
