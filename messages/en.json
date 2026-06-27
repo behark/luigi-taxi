@@ -37,13 +37,13 @@
       "stationAirport": "Main station & airport transfers",
       "cardPayment": "EC/Credit card payment accepted",
       "cityLongShopping": "City, long-distance & shopping trips",
-      "sevenSeater": "7-seater vehicles available",
+      "sevenSeater": "Groups on request",
       "businessPrivate": "Business & private journeys",
       "flatRate": "Flat rates available"
     },
     "fleet": {
       "title": "Our Fleet",
-      "subtitle": "Choose from our modern, well-maintained vehicles for comfortable and reliable transportation",
+      "subtitle": "Our modern, well-maintained vehicle for comfortable and reliable transport",
       "sedan": {
         "title": "Standard Sedan",
         "description": "Comfortable and reliable transportation for up to 4 passengers"
@@ -56,7 +56,8 @@
         "title": "Minivan",
         "description": "Spacious vehicles for groups and luggage"
       },
-      "learnMore": "Learn More"
+      "learnMore": "Learn More",
+      "capacity": "{count} passengers"
     },
     "features": {
       "title": "Why Choose Luigi Taxi?",
@@ -94,7 +95,8 @@
       "title": "Ready to Book Your Ride?",
       "subtitle": "Fast, reliable, and comfortable transportation awaits you",
       "contactButton": "Contact Us"
-    }
+    },
+    "learnMore": "Learn more"
   },
   "contact": {
     "title": "Contact Luigi Taxi",
@@ -230,7 +232,12 @@
   },
   "fleet": {
     "title": "Our Fleet",
-    "subtitle": "Modern, well-maintained vehicles for every occasion"
+    "subtitle": "Modern, well-maintained and ready for every journey",
+    "showcase": {
+      "title": "Our Newest Vehicle",
+      "subtitle": "Meet our Jaecoo J7 SUV — modern, spacious and comfortable",
+      "tagline": "Fresh in our fleet"
+    }
   },
   "whatsapp": {
     "bookNow": "Book via WhatsApp",

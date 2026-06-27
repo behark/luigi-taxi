@@ -58,7 +58,7 @@ export function generateLocalBusinessSchema() {
       geoRadius: '50000',
     },
     sameAs: [BUSINESS_INFO.social.facebook, BUSINESS_INFO.social.whatsapp],
-    image: `${BUSINESS_INFO.website}/taxi-hero.jpg`,
+    image: `${BUSINESS_INFO.website}/images/jaecoo-j7-front.jpg`,
     logo: `${BUSINESS_INFO.website}/logo.png`,
   };
 }

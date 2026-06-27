@@ -11,23 +11,17 @@ export default function PricingCalculator() {
   const t = useTranslations();
   const locale = useLocale();
   const [selectedRoute, setSelectedRoute] = useState<string>('');
-  const [selectedVehicle, setSelectedVehicle] = useState<keyof typeof pricing.vehicles>('standard');
   const [isRoundTrip, setIsRoundTrip] = useState(false);
 
-  const vehicles = Object.values(pricing.vehicles);
   const routes = pricing.commonRoutes;
 
   const calculatePrice = (): number => {
     if (!selectedRoute) return 0;
 
     const route = routes.find(r => r.id === selectedRoute);
-    const vehicle = pricing.vehicles[selectedVehicle];
+    if (!route) return 0;
 
-    if (!route || !vehicle) return 0;
-
-    // Calculate price based on base route price and vehicle rate difference
-    const vehicleMultiplier = vehicle.ratePerKm / pricing.vehicles.standard.ratePerKm;
-    let price = route.basePrice * vehicleMultiplier;
+    let price: number = route.basePrice;
 
     if (isRoundTrip) {
       price *= pricing.serviceMultipliers.roundtrip;
@@ -40,7 +34,6 @@ export default function PricingCalculator() {
   };
 
   const selectedRouteData = routes.find(r => r.id === selectedRoute);
-  const selectedVehicleData = pricing.vehicles[selectedVehicle];
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 max-w-md mx-auto transition-colors">
@@ -81,30 +74,10 @@ export default function PricingCalculator() {
           </select>
         </div>
 
-        {/* Vehicle Selection */}
-        <div>
-          <label
-            htmlFor="vehicle-select"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
-            <Car size={16} className="inline mr-1" />
-            {t('pricing.vehicle')}
-          </label>
-          <select
-            id="vehicle-select"
-            value={selectedVehicle}
-            onChange={(e) => setSelectedVehicle(e.target.value as keyof typeof pricing.vehicles)}
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg
-                       focus:ring-2 focus:ring-yellow-500 focus:border-transparent
-                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                       transition-colors"
-          >
-            {vehicles.map((vehicle) => (
-              <option key={vehicle.id} value={vehicle.id}>
-                {locale === 'de' ? vehicle.nameDE : vehicle.name} ({BUSINESS_INFO.currencySymbol}{vehicle.ratePerKm}/km)
-              </option>
-            ))}
-          </select>
+        {/* Vehicle (single) */}
+        <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <Car size={16} className="text-yellow-500" />
+          <span>{locale === 'de' ? 'Fahrzeug: ' : 'Vehicle: '}<strong>Jaecoo J7 SUV</strong></span>
         </div>
 
         {/* Round Trip Toggle */}
@@ -147,11 +120,10 @@ export default function PricingCalculator() {
           </div>
 
           {/* Vehicle info */}
-          {selectedVehicleData && selectedRoute && (
+          {selectedRoute && (
             <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {locale === 'de' ? selectedVehicleData.descriptionDE : selectedVehicleData.description}
-                {' '}({locale === 'de' ? 'max.' : 'max'} {selectedVehicleData.capacity} {locale === 'de' ? 'Passagiere' : 'passengers'})
+                Jaecoo J7 SUV {' '}({locale === 'de' ? 'max. 4 Fahrgäste' : 'max 4 passengers'})
               </p>
             </div>
           )}

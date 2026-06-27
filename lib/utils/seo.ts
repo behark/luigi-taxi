@@ -38,7 +38,7 @@ export function generateSEO(options: GenerateSEOOptions = {}): Metadata {
     title: data.title || localeDefaults.title,
     description: data.description || localeDefaults.description,
     keywords: data.keywords || localeDefaults.keywords,
-    ogImage: data.ogImage || '/images/taxi-hero.jpg',
+    ogImage: data.ogImage || '/images/jaecoo-j7-front.jpg',
   };
 
   const baseUrl = BUSINESS_INFO.website;

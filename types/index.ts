@@ -51,7 +51,9 @@ export interface ContactFormData {
 export interface VehicleType {
   id: string;
   name: string;
+  nameDE?: string;
   description: string;
+  descriptionDE?: string;
   capacity: number;
   image: string;
   imageAlt: string;

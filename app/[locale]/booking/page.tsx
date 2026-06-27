@@ -5,6 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import DatePicker from 'react-datepicker';
 import { Calendar, Clock, MapPin, Users, Car, Phone, CreditCard, Calculator } from 'lucide-react';
+import { useLocale } from 'next-intl';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import GooglePlacesAutocomplete from '@/components/forms/GooglePlacesAutocomplete';
@@ -15,9 +16,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 type BookingFormData = BookingFormInput;
 
-// Use centralized vehicle type information
-const vehicleTypes = BUSINESS_INFO.pricing.vehicles;
-
 const timeSlots = [
   '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
   '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
@@ -27,6 +25,8 @@ const timeSlots = [
 ];
 
 export default function BookingPage() {
+  const locale = useLocale();
+  const isDE = locale === 'de';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
   const [showPriceCalculator, setShowPriceCalculator] = useState(false);
@@ -42,7 +42,7 @@ export default function BookingPage() {
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       passengers: 1,
-      vehicleType: 'standard',
+      vehicleType: 'executive',
       serviceType: 'oneway',
       paymentMethod: 'cash',
       pickupDate: new Date(),
@@ -72,7 +72,7 @@ export default function BookingPage() {
       setShowPriceCalculator(true);
     } catch (error) {
       console.error('Price calculation failed:', error);
-      toast.error('Could not calculate price estimate. Please try again.');
+      toast.error(isDE ? 'Preis konnte nicht berechnet werden. Bitte versuchen Sie es erneut.' : 'Could not calculate price estimate. Please try again.');
     } finally {
       setIsCalculating(false);
     }
@@ -108,13 +108,15 @@ export default function BookingPage() {
       window.location.href = `mailto:${BUSINESS_INFO.email}?subject=${encodeURIComponent(
         subject
       )}&body=${encodeURIComponent(lines.join('\n'))}`;
-      toast.success('Opening your email app to send your booking…');
+      toast.success(isDE ? 'Ihre E-Mail-App wird geöffnet, um Ihre Buchung zu senden…' : 'Opening your email app to send your booking…');
       reset();
       setEstimatedPrice(null);
       setShowPriceCalculator(false);
     } catch {
       toast.error(
-        `Something went wrong. Please call us at ${BUSINESS_INFO.phone} to book.`
+        isDE
+          ? `Etwas ist schiefgelaufen. Bitte rufen Sie uns unter ${BUSINESS_INFO.phone} an, um zu buchen.`
+          : `Something went wrong. Please call us at ${BUSINESS_INFO.phone} to book.`
       );
     } finally {
       setIsSubmitting(false);
@@ -127,17 +129,20 @@ export default function BookingPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Book Your Ride
+            {isDE ? 'Fahrt buchen' : 'Book Your Ride'}
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Professional taxi service in Wiener Neustadt. Available 24/7 for your convenience.
+            {isDE
+              ? 'Professioneller Taxiservice in Wiener Neustadt. Rund um die Uhr für Sie verfügbar.'
+              : 'Professional taxi service in Wiener Neustadt. Available 24/7 for your convenience.'}
           </p>
         </div>
 
         {/* Quick Call Option */}
         <div className="mb-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-center">
           <p className="text-gray-800 dark:text-gray-200 mb-2">
-            <strong>Need immediate pickup?</strong> Call us now for instant booking
+            <strong>{isDE ? 'Sofort abgeholt werden?' : 'Need immediate pickup?'}</strong>{' '}
+            {isDE ? 'Rufen Sie uns jetzt für eine sofortige Buchung an' : 'Call us now for instant booking'}
           </p>
           <a
             href={`tel:${BUSINESS_INFO.phoneClean}`}
@@ -155,13 +160,13 @@ export default function BookingPage() {
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                 <MapPin className="w-6 h-6 mr-2 text-yellow-500" />
-                Trip Details
+                {isDE ? 'Fahrtdetails' : 'Trip Details'}
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Pickup Location *
+                    {isDE ? 'Abholort *' : 'Pickup Location *'}
                   </label>
                   <Controller
                     control={control}
@@ -175,7 +180,7 @@ export default function BookingPage() {
                             calculateEstimatedPrice();
                           }
                         }}
-                        placeholder="Enter pickup address"
+                        placeholder={isDE ? 'Abholadresse eingeben' : 'Enter pickup address'}
                         error={errors.pickupLocation?.message}
                       />
                     )}
@@ -184,7 +189,7 @@ export default function BookingPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Dropoff Location *
+                    {isDE ? 'Zielort *' : 'Dropoff Location *'}
                   </label>
                   <Controller
                     control={control}
@@ -198,7 +203,7 @@ export default function BookingPage() {
                             calculateEstimatedPrice();
                           }
                         }}
-                        placeholder="Enter destination address"
+                        placeholder={isDE ? 'Zieladresse eingeben' : 'Enter destination address'}
                         error={errors.dropoffLocation?.message}
                       />
                     )}
@@ -206,10 +211,10 @@ export default function BookingPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Service Type *
+                    {isDE ? 'Art der Fahrt *' : 'Service Type *'}
                   </label>
                   <select
                     {...register('serviceType')}
@@ -219,46 +224,36 @@ export default function BookingPage() {
                       calculateEstimatedPrice();
                     }}
                   >
-                    <option value="oneway">One Way</option>
-                    <option value="roundtrip">Round Trip</option>
-                    <option value="hourly">Hourly Rate</option>
-                    <option value="airport">Airport Transfer</option>
+                    <option value="oneway">{isDE ? 'Einfache Fahrt' : 'One Way'}</option>
+                    <option value="roundtrip">{isDE ? 'Hin- und Rückfahrt' : 'Round Trip'}</option>
+                    <option value="hourly">{isDE ? 'Stundentarif' : 'Hourly Rate'}</option>
+                    <option value="airport">{isDE ? 'Flughafentransfer' : 'Airport Transfer'}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Passengers *
+                    {isDE ? 'Fahrgäste *' : 'Passengers *'}
                   </label>
                   <select
                     {...register('passengers', { valueAsNumber: true })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                      <option key={num} value={num}>{num} passenger{num > 1 ? 's' : ''}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Vehicle Type *
-                  </label>
-                  <select
-                    {...register('vehicleType')}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    onChange={(e) => {
-                      register('vehicleType').onChange(e);
-                      calculateEstimatedPrice();
-                    }}
-                  >
-                    {Object.entries(vehicleTypes).map(([key, vehicle]) => (
-                      <option key={key} value={key}>
-                        {vehicle.name} (€{vehicle.ratePerKm}/km)
+                    {[1, 2, 3, 4].map(num => (
+                      <option key={num} value={num}>
+                        {isDE ? `${num} ${num === 1 ? 'Fahrgast' : 'Fahrgäste'}` : `${num} passenger${num > 1 ? 's' : ''}`}
                       </option>
                     ))}
                   </select>
                 </div>
+              </div>
+
+              <div className="mt-6 flex items-center gap-3 bg-gray-50 dark:bg-gray-700/40 rounded-lg p-4">
+                <Car className="w-5 h-5 text-yellow-500 flex-shrink-0" />
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  {isDE ? 'Fahrzeug: ' : 'Vehicle: '}
+                  <strong>Jaecoo J7 SUV</strong>
+                </p>
               </div>
             </div>
 
@@ -266,13 +261,13 @@ export default function BookingPage() {
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                 <Calendar className="w-6 h-6 mr-2 text-yellow-500" />
-                Date & Time
+                {isDE ? 'Datum & Uhrzeit' : 'Date & Time'}
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Pickup Date *
+                    {isDE ? 'Abholdatum *' : 'Pickup Date *'}
                   </label>
                   <Controller
                     control={control}
@@ -284,7 +279,7 @@ export default function BookingPage() {
                         minDate={new Date()}
                         dateFormat="dd/MM/yyyy"
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholderText="Select pickup date"
+                        placeholderText={isDE ? 'Abholdatum wählen' : 'Select pickup date'}
                       />
                     )}
                   />
@@ -295,13 +290,13 @@ export default function BookingPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Pickup Time *
+                    {isDE ? 'Abholzeit *' : 'Pickup Time *'}
                   </label>
                   <select
                     {...register('pickupTime')}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
-                    <option value="">Select time</option>
+                    <option value="">{isDE ? 'Zeit wählen' : 'Select time'}</option>
                     {timeSlots.map(time => (
                       <option key={time} value={time}>{time}</option>
                     ))}
@@ -316,7 +311,7 @@ export default function BookingPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Return Date
+                      {isDE ? 'Rückfahrtdatum' : 'Return Date'}
                     </label>
                     <Controller
                       control={control}
@@ -328,7 +323,7 @@ export default function BookingPage() {
                           minDate={watchedValues.pickupDate}
                           dateFormat="dd/MM/yyyy"
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholderText="Select return date"
+                          placeholderText={isDE ? 'Rückfahrtdatum wählen' : 'Select return date'}
                         />
                       )}
                     />
@@ -336,13 +331,13 @@ export default function BookingPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Return Time
+                      {isDE ? 'Rückfahrtzeit' : 'Return Time'}
                     </label>
                     <select
                       {...register('returnTime')}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
-                      <option value="">Select time</option>
+                      <option value="">{isDE ? 'Zeit wählen' : 'Select time'}</option>
                       {timeSlots.map(time => (
                         <option key={time} value={time}>{time}</option>
                       ))}
@@ -357,12 +352,12 @@ export default function BookingPage() {
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <Calculator className="w-5 h-5 mr-2 text-yellow-500" />
-                  Estimated Price
+                  {isDE ? 'Geschätzter Preis' : 'Estimated Price'}
                 </h3>
                 {isCalculating ? (
                   <div className="flex items-center justify-center py-4">
                     <LoadingSpinner size="md" color="yellow" />
-                    <span className="ml-2 text-gray-600 dark:text-gray-400">Calculating price...</span>
+                    <span className="ml-2 text-gray-600 dark:text-gray-400">{isDE ? 'Preis wird berechnet…' : 'Calculating price...'}</span>
                   </div>
                 ) : estimatedPrice ? (
                   <>
@@ -370,8 +365,10 @@ export default function BookingPage() {
                       €{estimatedPrice}
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      This is an estimate based on real distance. Final price will be confirmed after booking.
-                      {watchedValues.serviceType === 'hourly' && ' Hourly rate: €35/hour minimum 2 hours.'}
+                      {isDE
+                        ? 'Dies ist eine Schätzung auf Basis der tatsächlichen Entfernung. Der Endpreis wird nach der Buchung bestätigt.'
+                        : 'This is an estimate based on real distance. Final price will be confirmed after booking.'}
+                      {watchedValues.serviceType === 'hourly' && (isDE ? ' Stundentarif: €35/Stunde, mindestens 2 Stunden.' : ' Hourly rate: €35/hour minimum 2 hours.')}
                     </p>
                   </>
                 ) : null}
@@ -382,19 +379,19 @@ export default function BookingPage() {
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                 <Users className="w-6 h-6 mr-2 text-yellow-500" />
-                Customer Information
+                {isDE ? 'Kundendaten' : 'Customer Information'}
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Full Name *
+                    {isDE ? 'Vollständiger Name *' : 'Full Name *'}
                   </label>
                   <input
                     type="text"
                     {...register('customerName')}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Your full name"
+                    placeholder={isDE ? 'Ihr vollständiger Name' : 'Your full name'}
                   />
                   {errors.customerName && (
                     <p className="text-red-500 text-sm mt-1">{errors.customerName.message}</p>
@@ -403,7 +400,7 @@ export default function BookingPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Phone Number *
+                    {isDE ? 'Telefonnummer *' : 'Phone Number *'}
                   </label>
                   <input
                     type="tel"
@@ -420,7 +417,7 @@ export default function BookingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Email Address *
+                    {isDE ? 'E-Mail-Adresse *' : 'Email Address *'}
                   </label>
                   <input
                     type="email"
@@ -435,15 +432,15 @@ export default function BookingPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Payment Method *
+                    {isDE ? 'Zahlungsart *' : 'Payment Method *'}
                   </label>
                   <select
                     {...register('paymentMethod')}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
-                    <option value="cash">Cash</option>
-                    <option value="card">Credit/Debit Card</option>
-                    <option value="online">Online Payment</option>
+                    <option value="cash">{isDE ? 'Bar' : 'Cash'}</option>
+                    <option value="card">{isDE ? 'Kredit-/Debitkarte' : 'Credit/Debit Card'}</option>
+                    <option value="online">{isDE ? 'Online-Zahlung' : 'Online Payment'}</option>
                   </select>
                 </div>
               </div>
@@ -452,13 +449,13 @@ export default function BookingPage() {
             {/* Special Requests */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Special Requests (Optional)
+                {isDE ? 'Besondere Wünsche (optional)' : 'Special Requests (Optional)'}
               </label>
               <textarea
                 {...register('specialRequests')}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="Any special requirements, accessibility needs, or additional stops..."
+                placeholder={isDE ? 'Besondere Anforderungen, Barrierefreiheit oder zusätzliche Stopps…' : 'Any special requirements, accessibility needs, or additional stops...'}
               />
             </div>
 
@@ -472,19 +469,19 @@ export default function BookingPage() {
                 {isSubmitting ? (
                   <>
                     <LoadingSpinner size="sm" color="gray" />
-                    <span className="ml-2">Submitting...</span>
+                    <span className="ml-2">{isDE ? 'Wird gesendet…' : 'Submitting...'}</span>
                   </>
                 ) : (
-                  'Book Now'
+                  isDE ? 'Jetzt buchen' : 'Book Now'
                 )}
               </button>
-              
+
               <a
                 href={`tel:${BUSINESS_INFO.phoneClean}`}
                 className="bg-gray-800 dark:bg-gray-700 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors text-center flex items-center justify-center"
               >
                 <Phone className="w-5 h-5 mr-2" />
-                Call Instead
+                {isDE ? 'Lieber anrufen' : 'Call Instead'}
               </a>
             </div>
           </form>
@@ -494,25 +491,25 @@ export default function BookingPage() {
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
             <Clock className="w-8 h-8 text-yellow-500 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Quick Response</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{isDE ? 'Schnelle Antwort' : 'Quick Response'}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Booking confirmation within 15 minutes
+              {isDE ? 'Buchungsbestätigung innerhalb von 15 Minuten' : 'Booking confirmation within 15 minutes'}
             </p>
           </div>
-          
+
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
             <Car className="w-8 h-8 text-yellow-500 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Professional Drivers</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{isDE ? 'Professionelle Fahrer' : 'Professional Drivers'}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Licensed, experienced, and courteous
+              {isDE ? 'Lizenziert, erfahren und freundlich' : 'Licensed, experienced, and courteous'}
             </p>
           </div>
-          
+
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
             <CreditCard className="w-8 h-8 text-yellow-500 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Flexible Payment</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{isDE ? 'Flexible Zahlung' : 'Flexible Payment'}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Cash, card, or online payment options
+              {isDE ? 'Bar, Karte oder Online-Zahlung' : 'Cash, card, or online payment options'}
             </p>
           </div>
         </div>

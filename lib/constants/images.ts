@@ -2,8 +2,8 @@
 export const IMAGES = {
   // Hero section
   hero: {
-    src: '/images/taxi-hero.jpg',
-    alt: 'Luigi Taxi - Professional taxi service in Wiener Neustadt',
+    src: '/images/jaecoo-j7-front.jpg',
+    alt: 'Luigi Taxi Jaecoo J7 - professional taxi service in Wiener Neustadt',
     fallback: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1920&h=1080&fit=crop&crop=center&q=80',
   },
 
@@ -15,8 +15,8 @@ export const IMAGES = {
       fallback: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&q=80',
     },
     executive: {
-      src: '/images/executive.jpg',
-      alt: 'Executive luxury vehicle for business travel',
+      src: '/images/jaecoo-j7-front.jpg',
+      alt: 'Luigi Taxi Jaecoo J7 SUV - executive vehicle for business and comfort travel',
       fallback: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&h=600&fit=crop&crop=center&q=80',
     },
     minivan: {
@@ -57,5 +57,28 @@ export const IMAGES = {
       alt: 'Professional taxi driver - Experienced and courteous',
       fallback: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop&crop=center&q=80',
     },
+  },
+
+  // Newest vehicle: Jaecoo J7 SUV
+  jaecoo: {
+    video: '/videos/jaecoo-j7.mp4',
+    poster: '/images/jaecoo-j7-front.jpg',
+    gallery: [
+      {
+        src: '/images/jaecoo-j7-front.jpg',
+        alt: 'Luigi Taxi Jaecoo J7 - front view in Wiener Neustadt',
+        fallback: '/images/placeholder.svg',
+      },
+      {
+        src: '/images/jaecoo-j7-side.jpg',
+        alt: 'Luigi Taxi Jaecoo J7 - side profile',
+        fallback: '/images/placeholder.svg',
+      },
+      {
+        src: '/images/jaecoo-j7-rear.jpg',
+        alt: 'Luigi Taxi Jaecoo J7 - rear view',
+        fallback: '/images/placeholder.svg',
+      },
+    ],
   },
 };

@@ -37,7 +37,7 @@
       "stationAirport": "HBF- und Flughafentransfer",
       "cardPayment": "EC-/Kreditkartenzahlung",
       "cityLongShopping": "Stadt-, Fern- und Einkaufsfahrten",
-      "sevenSeater": "7-Sitzer verfügbar",
+      "sevenSeater": "Gruppen auf Anfrage",
       "businessPrivate": "Geschäfts- und Privatfahrten",
       "flatRate": "Pauschalpreise möglich"
     },
@@ -59,7 +59,7 @@
     },
     "fleet": {
       "title": "Unsere Flotte",
-      "subtitle": "Wählen Sie aus unseren modernen, gut gewarteten Fahrzeugen für komfortablen und zuverlässigen Transport",
+      "subtitle": "Unser modernes, top gepflegtes Fahrzeug für komfortablen und zuverlässigen Transport",
       "sedan": {
         "title": "Standard Limousine",
         "description": "Komfortabler und zuverlässiger Transport für bis zu 4 Personen"
@@ -72,7 +72,8 @@
         "title": "Kleinbus",
         "description": "Geräumige Fahrzeuge für Gruppen und Gepäck"
       },
-      "learnMore": "Mehr Erfahren"
+      "learnMore": "Mehr Erfahren",
+      "capacity": "{count} Fahrgäste"
     },
     "services": {
       "title": "Unsere Dienstleistungen",
@@ -94,7 +95,8 @@
       "title": "Bereit für Ihre Fahrt?",
       "subtitle": "24/7 verfügbar für alle Ihre Transportbedürfnisse",
       "contactButton": "Kontakt aufnehmen"
-    }
+    },
+    "learnMore": "Mehr erfahren"
   },
   "contact": {
     "title": "Luigi Taxi Kontaktieren",
@@ -230,7 +232,12 @@
   },
   "fleet": {
     "title": "Unsere Flotte",
-    "subtitle": "Moderne, gut gewartete Fahrzeuge für jeden Anlass"
+    "subtitle": "Modern, top gepflegt und bereit für jede Fahrt",
+    "showcase": {
+      "title": "Unser neuestes Fahrzeug",
+      "subtitle": "Lernen Sie unseren Jaecoo J7 SUV kennen – modern, geräumig und komfortabel",
+      "tagline": "Frisch in unserer Flotte"
+    }
   },
   "whatsapp": {
     "bookNow": "Per WhatsApp buchen",

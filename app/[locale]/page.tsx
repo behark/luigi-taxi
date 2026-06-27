@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardImage } from '@/components/ui/Card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { Section, SectionHeader } from '@/components/ui/Section';
 import { TaxiImage } from '@/components/ui/TaxiImage';
 import { VEHICLE_TYPES } from '@/lib/constants/vehicles';
@@ -11,9 +11,20 @@ import SimpleLocationMap from '@/components/maps/SimpleLocationMap';
 import WhatsAppButton from '@/components/ui/WhatsAppButton';
 import PricingCalculator from '@/components/forms/PricingCalculator';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
+import { MapPin, Plane, Briefcase, Sparkles, type LucideIcon } from 'lucide-react';
+
+const SERVICE_ICONS: Record<string, LucideIcon> = {
+  'city-tours': MapPin,
+  'airport-transfers': Plane,
+  'business-travel': Briefcase,
+  'special-events': Sparkles,
+};
 
 export default function Home() {
   const t = useTranslations('homepage');
+  const locale = useLocale();
+  const isDE = locale === 'de';
+  const j7 = VEHICLE_TYPES[0];
 
   const features = [
     {
@@ -40,7 +51,7 @@ export default function Home() {
             alt={IMAGES.hero.alt}
             fallback={IMAGES.hero.fallback}
             fill
-            className="object-cover brightness-50"
+            className="object-cover object-[50%_72%] brightness-50"
             priority
           />
         </div>
@@ -95,31 +106,37 @@ export default function Home() {
           title={t('fleet.title')}
           subtitle={t('fleet.subtitle')}
         />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {VEHICLE_TYPES.map((vehicle) => (
-            <Card key={vehicle.id} hover>
-              <CardImage 
-                src={vehicle.image} 
-                alt={vehicle.imageAlt} 
-                fallback={vehicle.imageFallback}
-              />
-              <CardContent>
-                <h3 className="text-xl font-semibold mb-3">{vehicle.name}</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  {vehicle.description}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  Capacity: {vehicle.capacity} passengers
-                </p>
-                <Link
-                  href={`/fleet#${vehicle.id}`}
-                  className="text-yellow-500 font-semibold hover:text-yellow-600 transition-colors"
-                >
-                  {t('learnMore')}
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+          <div className="relative h-64 lg:h-auto lg:min-h-[320px]">
+            <TaxiImage
+              src={j7.image}
+              alt={j7.imageAlt}
+              fallback={j7.imageFallback}
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+          </div>
+          <div className="p-8 lg:p-10 flex flex-col justify-center">
+            <h3 className="text-2xl font-bold mb-3">{isDE ? j7.nameDE : j7.name}</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              {isDE ? j7.descriptionDE : j7.description}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+              {t('fleet.capacity', { count: j7.capacity })}
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <Button as={Link} href="/booking">
+                {t('hero.bookButton')}
+              </Button>
+              <Link
+                href="/fleet"
+                className="text-yellow-500 font-semibold hover:text-yellow-600 transition-colors"
+              >
+                {t('learnMore')}
+              </Link>
+            </div>
+          </div>
         </div>
       </Section>
 
@@ -151,17 +168,17 @@ export default function Home() {
           subtitle={t('services.subtitle')}
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {SERVICES.map((service) => (
+          {SERVICES.map((service) => {
+            const Icon = SERVICE_ICONS[service.id] ?? Sparkles;
+            return (
             <Card key={service.id} hover>
-              <CardImage 
-                src={service.image} 
-                alt={service.imageAlt} 
-                fallback={service.imageFallback}
-              />
               <CardContent>
-                <h3 className="text-xl font-semibold mb-3">{service.title}</h3>
+                <div className="w-14 h-14 bg-yellow-100 dark:bg-yellow-900/20 rounded-xl flex items-center justify-center mb-4">
+                  <Icon className="w-7 h-7 text-yellow-600 dark:text-yellow-400" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">{isDE ? service.titleDE : service.title}</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  {service.description}
+                  {isDE ? service.descriptionDE : service.description}
                 </p>
                 <Link
                   href={`/services#${service.id}`}
@@ -171,7 +188,8 @@ export default function Home() {
                 </Link>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       </Section>
 
