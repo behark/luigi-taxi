@@ -172,7 +172,7 @@
       "passengerCountPlural": "{count} passengers",
       "vehicleType": "Vehicle Type",
       "vehicleTypes": {
-        "standard": "Standard Sedan (€2.5/km)",
+        "standard": "Standard Sedan (€2/km)",
         "executive": "Executive Car (€3.5/km)",
         "minivan": "Minivan (€4.0/km)"
       },

@@ -42,7 +42,7 @@ export const BUSINESS_INFO = {
   pricing: {
     // Base rates per km for each vehicle type
     baseRates: {
-      standard: 2.5,
+      standard: 2.0,
       executive: 3.5,
       minivan: 4.0,
     } as const,
@@ -53,7 +53,7 @@ export const BUSINESS_INFO = {
         name: 'Standard Sedan',
         nameDE: 'Limousine',
         capacity: 4,
-        ratePerKm: 2.5,
+        ratePerKm: 2.0,
         description: 'Comfortable sedan for up to 4 passengers',
         descriptionDE: 'Bequeme Limousine für bis zu 4 Passagiere',
       },

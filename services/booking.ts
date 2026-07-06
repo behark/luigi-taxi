@@ -55,7 +55,7 @@ export class BookingService {
     duration?: number
   ): number {
     const basePrices = {
-      standard: 2.5,
+      standard: 2.0,
       executive: 3.5,
       minivan: 4.0,
     };
