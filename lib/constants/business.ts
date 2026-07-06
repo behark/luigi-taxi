@@ -43,8 +43,8 @@ export const BUSINESS_INFO = {
     // Base rates per km for each vehicle type
     baseRates: {
       standard: 2.0,
-      executive: 3.5,
-      minivan: 4.0,
+      executive: 2.0,
+      minivan: 2.0,
     } as const,
     // Vehicle type display info (single source of truth)
     vehicles: {
@@ -62,7 +62,7 @@ export const BUSINESS_INFO = {
         name: 'Executive Car',
         nameDE: 'Executive',
         capacity: 4,
-        ratePerKm: 3.5,
+        ratePerKm: 2.0,
         description: 'Premium vehicle for business travel',
         descriptionDE: 'Premium-Fahrzeug für Geschäftsreisen',
       },
@@ -71,7 +71,7 @@ export const BUSINESS_INFO = {
         name: 'Minivan',
         nameDE: 'Kleinbus',
         capacity: 8,
-        ratePerKm: 4.0,
+        ratePerKm: 2.0,
         description: 'Spacious vehicle for groups and luggage',
         descriptionDE: 'Geräumiges Fahrzeug für Gruppen und Gepäck',
       },

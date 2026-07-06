@@ -173,8 +173,8 @@
       "vehicleType": "Fahrzeugtyp",
       "vehicleTypes": {
         "standard": "Standard Limousine (€2/km)",
-        "executive": "Executive Fahrzeug (€3,5/km)",
-        "minivan": "Kleinbus (€4,0/km)"
+        "executive": "Executive Fahrzeug (€2/km)",
+        "minivan": "Kleinbus (€2/km)"
       },
       "pickupDate": "Abholdatum",
       "pickupDatePlaceholder": "Abholdatum auswählen",

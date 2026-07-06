@@ -173,8 +173,8 @@
       "vehicleType": "Vehicle Type",
       "vehicleTypes": {
         "standard": "Standard Sedan (€2/km)",
-        "executive": "Executive Car (€3.5/km)",
-        "minivan": "Minivan (€4.0/km)"
+        "executive": "Executive Car (€2/km)",
+        "minivan": "Minivan (€2/km)"
       },
       "pickupDate": "Pickup Date",
       "pickupDatePlaceholder": "Select pickup date",

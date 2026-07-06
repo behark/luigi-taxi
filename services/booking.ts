@@ -56,8 +56,8 @@ export class BookingService {
   ): number {
     const basePrices = {
       standard: 2.0,
-      executive: 3.5,
-      minivan: 4.0,
+      executive: 2.0,
+      minivan: 2.0,
     };
 
     const basePrice = basePrices[vehicleType as keyof typeof basePrices] || basePrices.standard;
